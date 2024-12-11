@@ -1,4 +1,5 @@
-import axios, { AxiosRequestConfig } from "axios";
+import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
+import { UserBase } from "../app/models/user";
 
 
 interface CommonResponse<dataT = never> {
@@ -8,30 +9,59 @@ interface CommonResponse<dataT = never> {
   msg: string;
 }
 
+export class APIError {
+  readonly request: { url?: string; data: unknown };
+  readonly resp: CommonResponse<any>;
+
+  constructor(request: APIError['request'], resp: APIError['resp']) {
+    this.request = Object.freeze({ ...request });
+    this.resp = Object.freeze({ ...resp });
+  }
+  toString(): string {
+    return this.resp.msg;
+  }
+}
+
 
 export type _APIDefinition = {
   login: [
     {
-      email: string;
+      name: string;
       password: string;
     },
     CommonResponse<never>
   ],
+  logout: [
+    {},
+    CommonResponse<never>
+  ],
+  addFeatureBlance: [
+    {
+      accountName: string;
+      amount: number;
+      featureType: string
+    },
+    CommonResponse<never>
+  ],
+  getUserInfo: [
+    {},
+    CommonResponse<UserBase>
+  ]
 }
 
 export const _APIConfig: Record<keyof _APIDefinition, {method: 'get' | 'post', url: string}> = {
-  login: {"method": "post", "url": "/api/login"},
-
+  login: {"method": "post", "url": "/api/users/login"},
+  logout: {"method": "post", "url": "/api/users/logout"},
+  addFeatureBlance: {"method": "post", "url": "/api/staff/user/add_feature_blance"},
+  getUserInfo: {"method": "get", "url": "/api/users/me"}
 }
 type APIHandlerMap = {
   [T in keyof _APIDefinition]: _APIDefinition[T] extends [infer Data, infer Response] 
-  ? Data extends never ? () => Promise<Response> : (data: Data) => Promise<Response> : never;
+  ? Data extends never ? () => Promise<Response> : (data?: Data) => Promise<Response> : never;
 }
 
 
-
 const axiosClient = axios.create({
-    baseURL: 'https://api.example.com', // API 基础 URL
     timeout: 10000, // 请求超时时间
     headers: {
         'Content-Type': 'application/json',
@@ -49,7 +79,7 @@ axiosClient.interceptors.request.use(
   );
 
 
-axios.interceptors.response.use(
+  axiosClient.interceptors.response.use(
   (response) => {
     return response;
   },
@@ -58,13 +88,22 @@ axios.interceptors.response.use(
   }
 );
 
+axiosClient.interceptors.response.use((resp: AxiosResponse<CommonResponse>) => {
+  if (resp.data?.success === false) {
+    return Promise.reject(
+      new APIError({url: resp.config.url, data: resp.config.data || resp.config.params}, resp.data),
+    );
+  }
+  return resp;
+});
+
 const _apiClient: APIHandlerMap = {} as APIHandlerMap
 
 export function initAPI(): void {
   Object.keys(_APIConfig).forEach((key) => {
     const _key = key as keyof _APIDefinition;
     const config = _APIConfig[_key]
-    _apiClient[_key] = (data) => {
+    _apiClient[_key] = async (data) => {
       const data2 = { ...data };
       const config2: AxiosRequestConfig = {
         ...config,
@@ -74,9 +113,8 @@ export function initAPI(): void {
       } else if (config.method === 'get') {
         config2.params = data2;
       }
-      return axiosClient.request(config2).then((resp) => {
-        return resp.data;
-      });
+      const resp = await axiosClient.request(config2);
+      return resp.data;
     }
   })
 }

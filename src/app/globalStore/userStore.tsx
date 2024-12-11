@@ -9,7 +9,7 @@ export class UserStore {
     }
 
     @observable user: UserBase | null = null;
-    @action setUser = (v: UserBase): void => {
+    @action setUser = (v: UserBase | null): void => {
         this.user = v;
     }
     @action getUser = (): UserBase | null => {
@@ -22,4 +22,4 @@ export class UserStore {
 
 
 const globalUserStore = new UserStore();
-export const UerStoreContext = React.createContext<UserStore>(globalUserStore)
+export const UserStoreContext = React.createContext<UserStore>(globalUserStore)

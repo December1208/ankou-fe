@@ -1,16 +1,45 @@
-import { FC, useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import styles from './index.module.scss'
-import { UerStoreContext } from '../../globalStore/userStore';
+import { UserStoreContext } from '../../globalStore/userStore';
+import { useNavigate } from 'react-router-dom';
+import { APIClient } from '../../../apis/base';
+import { UserBase } from '../../models/user';
+import { hashPassword } from '../../common/utils';
+import { APIError } from "../../../apis/base"
 
 
-export const LoginAndSignup = ()  => {
-
+const LoginAndSignup = ()  => {
     const [isLogin, setIsLogin] = useState(true);
     const [isFirst, setIsFirst] = useState(true);
+    const [name, setName] = useState('');
+    const [password, setPassword] = useState('');
+    const navigate = useNavigate();
+    const userContext = useContext(UserStoreContext)
 
     const handleStatusChange = () => {
-        setIsFirst(false);
-        setIsLogin(!isLogin);
+        setIsFirst(true);
+        // setIsLogin(!isLogin);
+        setIsLogin(true);
+    }
+
+    const submitHandler = async (e: any) => {
+        e.preventDefault();
+        const encryptPassword = await hashPassword(password)
+        try {
+            await APIClient.login({name: name, password: encryptPassword})
+            const userInfo = await APIClient.getUserInfo()
+            const userBase: UserBase = {name: userInfo.data.name, id: userInfo.data.id}
+            userContext.setUser(userBase)
+        } catch(error) {
+            if (error instanceof APIError) {
+                alert(error.toString())
+            }else{
+                alert(error)
+            }
+            return 
+        }
+        
+        navigate('/home');
     }
 
     return (
@@ -29,31 +58,38 @@ export const LoginAndSignup = ()  => {
                 <div className={`${styles.user_options_forms} ${isFirst ? '' : isLogin ? styles.bounceRight : styles.bounceLeft}`} id="user_options_forms">
                 <div className={styles.user_forms_login}>
                     <h2 className={styles.forms_title}>Login</h2>
-                    <form className={styles.forms_form}>
-                    <fieldset className={styles.forms_fieldset}>
-                        <div className={styles.forms_field}>
-                        <input type="email" placeholder="Email" className={styles.forms_field_input} autoFocus required /></div>
-                        <div className={styles.forms_field}>
-                        <input type="password" placeholder="Password" className={styles.forms_field_input} required /></div>
-                    </fieldset>
-                    <div className={styles.forms_buttons}>
-                        <button type="button" className={styles.forms_buttons_forgot}>Forgot password?</button>
-                        <input type="submit" value="Log In" className={styles.forms_buttons_action} /></div>
+                    <form className={styles.forms_form} onSubmit={submitHandler}>
+                        <fieldset className={styles.forms_fieldset}>
+                            <div className={styles.forms_field}>
+                                <input type="text" placeholder="用户名" className={styles.forms_field_input} onChange={(e) => setName(e.target.value)} autoFocus required />
+                            </div>
+                            <div className={styles.forms_field}>
+                                <input type="password" placeholder="密码" className={styles.forms_field_input} onChange={(e) => setPassword(e.target.value)} required />
+                            </div>
+                        </fieldset>
+                        <div className={styles.forms_buttons}>
+                            <button type="button" className={styles.forms_buttons_forgot}>Forgot password?</button>
+                            <input type="submit" value="Log In" className={styles.forms_buttons_action} />
+                        </div>
                     </form>
                 </div>
                 <div className={styles.user_forms_signup}>
                     <h2 className={styles.forms_title}>Sign Up</h2>
                     <form className={styles.forms_form}>
-                    <fieldset className={styles.forms_fieldset}>
-                        <div className={styles.forms_field}>
-                        <input type="text" placeholder="Full Name" className={styles.forms_field_input} required /></div>
-                        <div className={styles.forms_field}>
-                        <input type="email" placeholder="Email" className={styles.forms_field_input} required /></div>
-                        <div className={styles.forms_field}>
-                        <input type="password" placeholder="Password" className={styles.forms_field_input} required /></div>
-                    </fieldset>
-                    <div className={styles.forms_buttons}>
-                        <input type="submit" value="Sign up" className={styles.forms_buttons_action} /></div>
+                        <fieldset className={styles.forms_fieldset}>
+                            <div className={styles.forms_field}>
+                                <input type="text" placeholder="Full Name" className={styles.forms_field_input} required />
+                            </div>
+                            <div className={styles.forms_field}>
+                                <input type="email" placeholder="Email" className={styles.forms_field_input} required />
+                            </div>
+                            <div className={styles.forms_field}>
+                                <input type="password" placeholder="Password" className={styles.forms_field_input} required />
+                            </div>
+                        </fieldset>
+                        <div className={styles.forms_buttons}>
+                            <input type="submit" value="Sign up" className={styles.forms_buttons_action} />
+                        </div>
                     </form>
                 </div>
                 </div>
@@ -62,12 +98,15 @@ export const LoginAndSignup = ()  => {
     )
 }
 
-export const LoginPage: FC = () => {
-    const userContext = useContext(UerStoreContext)
-
-    if (userContext.isLogined) {
-        return <div>You are logged in</div>
-    }
+export const LoginPage = () => {
+    const userContext = useContext(UserStoreContext)
+    const navigate = useNavigate();
+    useEffect(() => {
+        if (userContext.isLogined) {
+            navigate('/home');
+        }
+    }, [userContext.isLogined])
+    
     return <LoginAndSignup />
 }
 

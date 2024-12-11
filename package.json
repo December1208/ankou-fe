@@ -13,6 +13,7 @@
     "@babel/plugin-proposal-decorators": "^7.24.7",
     "@babel/plugin-transform-class-properties": "^7.24.7",
     "axios": "^1.6.7",
+    "crypto-js": "^4.2.0",
     "mobx": "^6.13.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -20,6 +21,7 @@
     "sass": "^1.77.8"
   },
   "devDependencies": {
+    "@types/crypto-js": "^4.2.2",
     "@types/react": "^18.2.56",
     "@types/react-dom": "^18.2.19",
     "@types/uuid": "^9.0.8",
