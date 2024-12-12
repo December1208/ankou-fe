@@ -11,7 +11,7 @@ interface CommonResponse<dataT = never> {
 
 export class APIError {
   readonly request: { url?: string; data: unknown };
-  readonly resp: CommonResponse<any>;
+  readonly resp: CommonResponse;
 
   constructor(request: APIError['request'], resp: APIError['resp']) {
     this.request = Object.freeze({ ...request });
@@ -32,7 +32,7 @@ export type _APIDefinition = {
     CommonResponse<never>
   ],
   logout: [
-    {},
+    never,
     CommonResponse<never>
   ],
   addFeatureBlance: [
@@ -44,7 +44,7 @@ export type _APIDefinition = {
     CommonResponse<never>
   ],
   getUserInfo: [
-    {},
+    never,
     CommonResponse<UserBase>
   ]
 }
@@ -55,10 +55,12 @@ export const _APIConfig: Record<keyof _APIDefinition, {method: 'get' | 'post', u
   addFeatureBlance: {"method": "post", "url": "/api/staff/user/add_feature_blance"},
   getUserInfo: {"method": "get", "url": "/api/users/me"}
 }
-type APIHandlerMap = {
-  [T in keyof _APIDefinition]: _APIDefinition[T] extends [infer Data, infer Response] 
-  ? Data extends never ? () => Promise<Response> : (data?: Data) => Promise<Response> : never;
-}
+
+type buildHandlerMap<Def extends Record<string, [unknown, unknown]>> = {
+  [T in keyof Def]: Def[T][0] extends never ? () => Promise<Def[T][1]> : (data: Def[T][0]) => Promise<Def[T][1]>;
+};
+
+type APIFunctionMap = buildHandlerMap<_APIDefinition>;
 
 
 const axiosClient = axios.create({
@@ -91,20 +93,23 @@ axiosClient.interceptors.request.use(
 axiosClient.interceptors.response.use((resp: AxiosResponse<CommonResponse>) => {
   if (resp.data?.success === false) {
     return Promise.reject(
-      new APIError({url: resp.config.url, data: resp.config.data || resp.config.params}, resp.data),
+      new APIError(
+        {url: resp.config.url, data: resp.config.data || resp.config.params}, 
+        resp.data
+      ),
     );
   }
   return resp;
 });
 
-const _apiClient: APIHandlerMap = {} as APIHandlerMap
+const _apiClient: APIFunctionMap = {} as APIFunctionMap
 
 export function initAPI(): void {
   Object.keys(_APIConfig).forEach((key) => {
     const _key = key as keyof _APIDefinition;
     const config = _APIConfig[_key]
-    _apiClient[_key] = async (data) => {
-      const data2 = { ...data };
+    _apiClient[_key] = async (data?) => {
+      const data2 = data ? { ...data } : {};
       const config2: AxiosRequestConfig = {
         ...config,
       };

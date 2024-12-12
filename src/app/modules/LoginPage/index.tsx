@@ -22,7 +22,7 @@ const LoginAndSignup = ()  => {
         setIsLogin(true);
     }
 
-    const submitHandler = async (e: any) => {
+    const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const encryptPassword = await hashPassword(password)
         try {
@@ -105,7 +105,7 @@ export const LoginPage = () => {
         if (userContext.isLogined) {
             navigate('/home');
         }
-    }, [userContext.isLogined])
+    }, [userContext.isLogined, navigate])
     
     return <LoginAndSignup />
 }

@@ -3,7 +3,6 @@ import { LoginPage } from "./app/modules/LoginPage"
 import {
   createBrowserRouter,
   RouterProvider,
-  useNavigate,
 } from "react-router-dom";
 import { APIClient, initAPI } from "./apis/base";
 import { HomePage } from "./app/modules/HomePage";
@@ -50,7 +49,7 @@ function App() {
     }).finally(() => {
       setIsUserLoaded(true)
     })
-  }, [])
+  })
 
   if (!isUserLoaded) {
     return <div>Loading...</div>; // 显示加载状态

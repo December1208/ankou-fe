@@ -89,7 +89,7 @@ const Card = ({
 
 
 const FeatureBalanceModal = () => {
-    const [_, setSearchParams] = useSearchParams();
+    const [ , setSearchParams] = useSearchParams();
     const [featureType, setFeatureType] = useState('');
     const [featureAmount, setFeatureAmount] = useState<number>(0);
     const [accountName, setAccountName] = useState('');
@@ -171,7 +171,7 @@ const FeatureBalanceModal = () => {
 
 // 主内容组件
 const MainContent = () => {
-    const [searchParams, _] = useSearchParams();
+    const [ searchParams, ] = useSearchParams();
     const modalOpen = searchParams.get('modalOpen');
     const cards = [
         {
