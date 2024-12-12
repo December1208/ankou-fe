@@ -94,8 +94,13 @@ const FeatureBalanceModal = () => {
     const [featureAmount, setFeatureAmount] = useState<number>(0);
     const [accountName, setAccountName] = useState('');
     const [errorMessage, setErrorMessage] = useState(''); // 用于存储错误信息
+    const [laoding, setLoading] = useState(false);
 
     const handlerSumbit = async () => {
+        if (laoding) {
+            return 
+        }
+        setLoading(true)
         if (!accountName) {
             setErrorMessage('账号名不能为空'); 
             return
@@ -118,7 +123,8 @@ const FeatureBalanceModal = () => {
             } else {
                 setErrorMessage(error instanceof Error ? error.message : '未知错误')
             }
-            return 
+        } finally {
+            setLoading(true)
         }
     }
 

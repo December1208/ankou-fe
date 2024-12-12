@@ -6,6 +6,7 @@ import { APIClient } from '../../../apis/base';
 import { UserBase } from '../../models/user';
 import { hashPassword } from '../../common/utils';
 import { APIError } from "../../../apis/base"
+import { set } from 'mobx';
 
 
 const LoginAndSignup = ()  => {
@@ -15,6 +16,7 @@ const LoginAndSignup = ()  => {
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
     const userContext = useContext(UserStoreContext)
+    const [laoding, setLoading] = useState(false);
 
     const handleStatusChange = () => {
         setIsFirst(true);
@@ -24,6 +26,10 @@ const LoginAndSignup = ()  => {
 
     const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        if (laoding) {
+            return
+        }
+        setLoading(true)
         const encryptPassword = await hashPassword(password)
         try {
             await APIClient.login({name: name, password: encryptPassword})
@@ -38,7 +44,7 @@ const LoginAndSignup = ()  => {
             }
             return 
         }
-        
+        setLoading(false)
         navigate('/home');
     }
 
