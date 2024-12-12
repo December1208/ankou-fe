@@ -34,7 +34,7 @@ function App() {
 
   initAPI()
   useEffect(() => {
-    APIClient.getUserInfo({}).then((resp) => {
+    APIClient.getUserInfo().then((resp) => {
       const { code } = resp 
       if (code !== 0) {
         userContext.setUser(null)

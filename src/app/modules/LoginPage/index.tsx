@@ -48,11 +48,11 @@ const LoginAndSignup = ()  => {
                 <div className={styles.user_options_text}>
                 <div className={styles.user_options_unregistered}>
                     <h2 className={styles.user_unregistered_title}>Don't have an account?</h2>
-                    <p className={styles.user_unregistered_text}>Banjo tote bag bicycle rights, High Life sartorial cray craft beer whatever street art fap.</p>
+                    <p className={styles.user_unregistered_text}></p>
                     <button className={styles.user_unregistered_signup} id="signup_button" onClick={handleStatusChange}>Sign up</button></div>
                 <div className={styles.user_options_registered}>
                     <h2 className={styles.user_registered_title}>Have an account?</h2>
-                    <p className={styles.user_registered_text}>Banjo tote bag bicycle rights, High Life sartorial cray craft beer whatever street art fap.</p>
+                    <p className={styles.user_registered_text}></p>
                     <button className={styles.user_registered_login} id="login_button" onClick={handleStatusChange}>Login</button></div>
                 </div>
                 <div className={`${styles.user_options_forms} ${isFirst ? '' : isLogin ? styles.bounceRight : styles.bounceLeft}`} id="user_options_forms">
