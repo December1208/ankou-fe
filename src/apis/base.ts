@@ -1,5 +1,6 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import { UserBase } from "../app/models/user";
+import { AnkouConfigItem, AnkouConfigList } from "../app/models/ankouConfig";
 
 
 interface CommonResponse<dataT = never> {
@@ -46,6 +47,31 @@ export type _APIDefinition = {
   getUserInfo: [
     never,
     CommonResponse<UserBase>
+  ],
+  getConfigList: [
+    {
+      page: number,
+      size: number,
+      original_key: string,
+      original_url: string,
+      key: string,
+    },
+    CommonResponse<AnkouConfigList>
+  ],
+  createConfig: [
+    {
+      original_key: string,
+      original_url: string,
+      ratio: number,
+    },
+    CommonResponse<AnkouConfigItem>
+  ],
+  updateConfig: [
+    {
+      config_id: number,
+      ratio: number,
+    },
+    CommonResponse<AnkouConfigItem>
   ]
 }
 
@@ -53,7 +79,10 @@ export const _APIConfig: Record<keyof _APIDefinition, {method: 'get' | 'post', u
   login: {"method": "post", "url": "/api/users/login"},
   logout: {"method": "post", "url": "/api/users/logout"},
   addFeatureBlance: {"method": "post", "url": "/api/staff/user/add_feature_blance"},
-  getUserInfo: {"method": "get", "url": "/api/users/me"}
+  getUserInfo: {"method": "get", "url": "/api/users/me"},
+  getConfigList: {"method": "get", "url": "/api/link-config/config/list"},
+  createConfig: {"method": "post", "url": "/api/link-config/create_config"},
+  updateConfig: {"method": "post", "url": "/api/link-config/update_config"}
 }
 
 type buildHandlerMap<Def extends Record<string, [unknown, unknown]>> = {
