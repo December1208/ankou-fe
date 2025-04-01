@@ -76,8 +76,8 @@ export type _APIDefinition = {
 }
 
 export const _APIConfig: Record<keyof _APIDefinition, {method: 'get' | 'post', url: string}> = {
-  login: {"method": "post", "url": "/api/users/login"},
-  logout: {"method": "post", "url": "/api/users/logout"},
+  login: {"method": "post", "url": "/api/account/login"},
+  logout: {"method": "post", "url": "/api/account/logout"},
   addFeatureBlance: {"method": "post", "url": "/api/staff/user/add_feature_blance"},
   getUserInfo: {"method": "get", "url": "/api/users/me"},
   getConfigList: {"method": "get", "url": "/api/link-config/config/list"},
