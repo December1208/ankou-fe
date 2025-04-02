@@ -46,13 +46,13 @@ export const RedirectPage: React.FC = () => {
 
   return (
     <div className={styles.redirectContainer}>
-      {!isExpired && countdown > 0 ? (
-        <div className={styles.countdownText}>
-          {countdown} 秒后自动跳转...
-        </div>
-      ) : (
+      {isExpired ? (
         <div className={styles.expiredText}>
           链接失效
+        </div>
+      ) : (
+        <div className={styles.countdownText}>
+          {countdown} 秒后自动跳转...
         </div>
       )}
     </div>
