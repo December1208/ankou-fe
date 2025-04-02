@@ -10,7 +10,7 @@ import {
 } from '@ant-design/icons';
 import styles from './index.module.scss';
 import { APIClient } from '../../../apis/base';
-import { AnkouConfigItem } from '../../models/ankouConfig';
+import { AnkouConfigItem, UVData } from '../../models/ankouConfig';
 
 const { Header, Sider, Content } = Layout;
 
@@ -281,7 +281,7 @@ export const SystemListPage: React.FC = () => {
       },
       render: (text: string) => (
         <Tooltip placement="topLeft" title={text}>
-          {text}
+          -
         </Tooltip>
       )
     },
@@ -291,7 +291,7 @@ export const SystemListPage: React.FC = () => {
       key: 'original_count',
       width: 100,
       ellipsis: true,
-      render: (count: number[]) => `[${count.join(', ')}]` || '[]'
+      render: (uvData: UVData[]) => `[${uvData.map(item => item.count).join(',')}]` || '[]'
     },
     {
       title: '副数量',
@@ -299,7 +299,7 @@ export const SystemListPage: React.FC = () => {
       key: 'secondary_count',
       width: 100,
       ellipsis: true,
-      render: (count: number[]) => `[${count.join(', ')}]` || '[]'
+      render: (uvData: UVData[]) => `[${uvData.map(item => item.count).join(',')}]` || '[]'
     },
     {
       title: '差值',

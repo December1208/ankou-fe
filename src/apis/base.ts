@@ -1,6 +1,6 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import { UserBase } from "../app/models/user";
-import { AnkouConfigItem, AnkouConfigList } from "../app/models/ankouConfig";
+import { AnkouConfigItem, AnkouConfigList, ConfigStatistics } from "../app/models/ankouConfig";
 import { genComponentStyleHook } from "antd/es/theme/internal";
 import { message } from "antd";
 
@@ -94,6 +94,12 @@ export type _APIDefinition = {
       t: number,
     },
     CommonResponse<{ url: string }>
+  ],
+  getStatistics: [
+    {
+      keys: string[],
+    },
+    CommonResponse<ConfigStatistics>
   ]
 }
 
@@ -107,8 +113,8 @@ export const _APIConfig: Record<keyof _APIDefinition, {method: 'get' | 'post', u
   updateConfig: {"method": "post", "url": "/api/link-config/update_config"},
   deleteConfig: {"method": "post", "url": "/api/link-config/delete_config"},
   getUrl: {"method": "post", "url": "/api/link-config/get_url"},
-  getRedirectUrl: {"method": "get", "url": "/api/link-config/get_redirect_url"}
-
+  getRedirectUrl: {"method": "get", "url": "/api/link-config/get_redirect_url"},
+  getStatistics: {"method": "post", "url": "/api/link-config/config_statistics"},
 }
 
 type buildHandlerMap<Def extends Record<string, [unknown, unknown]>> = {

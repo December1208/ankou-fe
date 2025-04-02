@@ -2,8 +2,8 @@ export type AnkouConfigItem = {
     id: number
     original_key: string
     original_url: string
-    original_count: number[]
-    secondary_count: number[]
+    original_count: UVData[]
+    secondary_count: UVData[]
     difference: number
     key: string
     url: string
@@ -13,8 +13,26 @@ export type AnkouConfigItem = {
 }
 
 
+export type UVData = {
+    key: string
+    date: string
+    count: number
+}
+
+
 export type AnkouConfigList = {
     total: number
     configs: AnkouConfigItem[]
 
+}
+
+
+export type ConfigStatisticsItem = {
+    key: string
+    total: number
+    uv: UVData[]
+}
+
+export type ConfigStatistics = {
+    uv: ConfigStatisticsItem[]
 }

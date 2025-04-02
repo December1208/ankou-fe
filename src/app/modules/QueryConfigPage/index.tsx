@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import styles from './index.module.scss';
 import { APIClient } from '../../../apis/base';
 import { QRCode } from 'antd';
+import { ConfigStatisticsItem } from '../../models/ankouConfig';
 
 interface QueryResult {
   id: number;
@@ -23,20 +24,27 @@ interface QueryResult {
 export const ConfigStatisticsPage: React.FC = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [dataSource, setDataSource] = useState<QueryResult[]>([]);
+  const [dataSource, setDataSource] = useState<ConfigStatisticsItem[]>([]);
+  const [dateColumns, setDateColumns] = useState<string[]>([]);
   const [form] = Form.useForm();
 
   const handleQuery = async (values: { key: string }) => {
     try {
+      console.log(values)
       setLoading(true);
-      const response = await APIClient.getConfigList({
-        page: 1,
-        size: 10,
-        key: values.key || '',
-        original_key: '',
-        original_url: ''
+      const response = await APIClient.getStatistics({
+        keys: values.key.split('\n').map(item => item.trim()).filter(item => item !== '')
       });
-      setDataSource(response.data.configs);
+      
+      // 获取所有不重复的日期
+      const dates = Array.from(new Set(
+        response.data.uv.flatMap(item => 
+          item.uv.map(uvData => uvData.date)
+        )
+      )).sort();
+      
+      setDateColumns(dates);
+      setDataSource(response.data.uv);
     } catch (error) {
       message.error('查询失败');
       console.error('查询失败:', error);
@@ -45,84 +53,42 @@ export const ConfigStatisticsPage: React.FC = () => {
     }
   };
 
-  const columns = [
-    {
-      title: '卡密',
-      dataIndex: 'key',
-      key: 'key',
-      width: 200,
-      ellipsis: false,
-      render: (text: string) => (
-        <Tooltip placement="topLeft" title={text}>
-          {text}
-        </Tooltip>
-      )
-    },
-    {
-      title: '总数',
-      dataIndex: 'original_count',
-      key: 'original_count',
+  const getColumns = () => {
+    const baseColumns = [
+      {
+        title: '卡密',
+        dataIndex: 'key',
+        key: 'key',
+        width: 200,
+        ellipsis: false,
+        render: (text: string) => (
+          <Tooltip placement="topLeft" title={text}>
+            {text}
+          </Tooltip>
+        )
+      },
+      {
+        title: '总数',
+        key: 'total',
+        width: 100,
+        render: (_, record: ConfigStatisticsItem) => {
+          return record.uv.reduce((sum, item) => sum + item.count, 0);
+        }
+      }
+    ];
+
+    const dynamicColumns = dateColumns.map(date => ({
+      title: date,  // 将 YYYY-MM-DD 转换为 MM/DD
+      key: date,
       width: 100,
-      ellipsis: true,
-      render: (count: number[]) => count[0] || 0
-    },
-    {
-      title: '04-02',
-      dataIndex: 'original_count',
-      key: 'count_1',
-      width: 100,
-      ellipsis: true,
-      render: (count: number[]) => count[1] || 0
-    },
-    {
-      title: '04-01',
-      dataIndex: 'original_count',
-      key: 'count_2',
-      width: 100,
-      ellipsis: true,
-      render: (count: number[]) => count[2] || 0
-    },
-    {
-      title: '03-31',
-      dataIndex: 'original_count',
-      key: 'count_3',
-      width: 100,
-      ellipsis: true,
-      render: (count: number[]) => count[3] || 0
-    },
-    {
-      title: '03-30',
-      dataIndex: 'original_count',
-      key: 'count_4',
-      width: 100,
-      ellipsis: true,
-      render: (count: number[]) => count[4] || 0
-    },
-    {
-      title: '03-29',
-      dataIndex: 'original_count',
-      key: 'count_5',
-      width: 100,
-      ellipsis: true,
-      render: (count: number[]) => count[5] || 0
-    },
-    {
-      title: '03-28',
-      dataIndex: 'original_count',
-      key: 'count_6',
-      width: 100,
-      ellipsis: true,
-      render: (count: number[]) => count[6] || 0
-    },
-    {
-      title: '03-27',
-      dataIndex: 'original_count',
-      key: 'count_7',
-      width: 100,
-      ellipsis: true,
-      render: (count: number[]) => count[7] || 0
-    }
-  ];
+      render: (_: any, record: ConfigStatisticsItem) => {
+        const uvData = record.uv.find(item => item.date === date);
+        return uvData?.count || 0;
+      }
+    }));
+
+    return [...baseColumns, ...dynamicColumns];
+  };
 
   return (
     <div className={styles.container}>
@@ -142,7 +108,7 @@ export const ConfigStatisticsPage: React.FC = () => {
       >
         <Form.Item name="key">
           <Input.TextArea 
-            placeholder="一行一个卡密，支持多个" 
+            placeholder="一行一个卡密，最多支持20个" 
             className={styles.textarea}
             rows={10}
           />
@@ -166,7 +132,7 @@ export const ConfigStatisticsPage: React.FC = () => {
       </Form>
       {dataSource.length > 0 && (
         <Table 
-          columns={columns} 
+          columns={getColumns()} 
           dataSource={dataSource}
           loading={loading}
           bordered
