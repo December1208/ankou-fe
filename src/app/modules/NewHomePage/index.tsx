@@ -17,7 +17,7 @@ const { Header, Sider, Content } = Layout;
 interface QueryParams {
   original_key?: string;
   key?: string;
-  original_link?: string;
+  original_url?: string;
   page: number;
   size: number;
 }
@@ -49,6 +49,8 @@ export const SystemListPage: React.FC = () => {
   const [isEditModalVisible, setIsEditModalVisible] = useState(false); // 编辑配置弹窗状态
   const [editingRecord, setEditingRecord] = useState<AnkouConfigItem | null>(null); // 新增状态
   const [updateConfigForm] = Form.useForm<UpdateConfigForm>();
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false); // 删除确认弹窗状态
+  const [deletingRecord, setDeletingRecord] = useState<AnkouConfigItem | null>(null); // 要删除的记录
 
   useEffect(() => {
     // 在组件加载时请求数据
@@ -57,7 +59,7 @@ export const SystemListPage: React.FC = () => {
       size: pagination.pageSize,
       original_key: '',
       key: '',
-      original_link: ''
+      original_url: ''
     });
   }, []); // 空依赖数组表示只在组件挂载时执行一次
 
@@ -84,17 +86,67 @@ export const SystemListPage: React.FC = () => {
         size: pagination.pageSize,
         original_key: form.getFieldValue('originalKey') || '',
         key: form.getFieldValue('secondaryKey') || '',
-        original_link: form.getFieldValue('originalLink') || ''
+        original_url: form.getFieldValue('originalLink') || ''
       });
     } catch (error) {
-      message.error('更新失败');
       console.error('更新失败:', error);
     } finally {
       setLoading(false);
     }
   };
 
+  const handleDelete = async (record: AnkouConfigItem) => {
+    setDeletingRecord(record);
+    setIsDeleteModalVisible(true);
+  };
 
+  const handleDeleteConfirm = async () => {
+    if (!deletingRecord) return;
+    
+    try {
+      setLoading(true);
+      await APIClient.deleteConfig({ config_id: deletingRecord.id });
+      message.success('删除成功');
+      setIsDeleteModalVisible(false);
+      setDeletingRecord(null);
+      
+      // 获取当前页数据
+      const currentPageData = await APIClient.getConfigList({
+        page: pagination.current,
+        size: pagination.pageSize,
+        original_key: form.getFieldValue('originalKey') || '',
+        key: form.getFieldValue('secondaryKey') || '',
+        original_url: form.getFieldValue('originalLink') || ''
+      });
+
+      // 如果当前页没有数据了，且不是第一页，则跳转到上一页
+      if (currentPageData.data.configs.length === 0 && pagination.current > 1) {
+        const newPage = pagination.current - 1;
+        setPagination(prev => ({ ...prev, current: newPage }));
+        fetchData({
+          page: newPage,
+          size: pagination.pageSize,
+          original_key: form.getFieldValue('originalKey') || '',
+          key: form.getFieldValue('secondaryKey') || '',
+          original_url: form.getFieldValue('originalLink') || ''
+        });
+      } else {
+        // 否则刷新当前页数据
+        fetchData({
+          page: pagination.current,
+          size: pagination.pageSize,
+          original_key: form.getFieldValue('originalKey') || '',
+          key: form.getFieldValue('secondaryKey') || '',
+          original_url: form.getFieldValue('originalLink') || ''
+        });
+      }
+    } catch (error) {
+      console.error('删除失败:', error);
+    } finally {
+      setIsDeleteModalVisible(false);
+      setLoading(false);
+    }
+  };
 
   const fetchData = async (params: QueryParams) => {
     try {
@@ -103,7 +155,7 @@ export const SystemListPage: React.FC = () => {
         page: params.page,
         size: params.size,
         original_key: params.original_key || '',
-        original_url: params.original_link || '',
+        original_url: params.original_url || '',
         key: params.key || ''
       };
       
@@ -114,7 +166,6 @@ export const SystemListPage: React.FC = () => {
         total: response.data.total
       }));
     } catch (error) {
-      message.error('获取数据失败');
       console.error('获取数据失败:', error);
     } finally {
       setLoading(false);
@@ -128,7 +179,7 @@ export const SystemListPage: React.FC = () => {
       size: pagination.pageSize,
       original_key: values.originalKey,
       key: values.secondaryKey,
-      original_link: values.originalLink
+      original_url: values.originalLink
     });
   };
 
@@ -140,7 +191,7 @@ export const SystemListPage: React.FC = () => {
       size: pagination.pageSize,
       original_key: '',
       key: '',
-      original_link: ''
+      original_url: ''
     });
   };
 
@@ -157,7 +208,7 @@ export const SystemListPage: React.FC = () => {
         size: pagination.pageSize,
         original_key: form.getFieldValue('originalKey') || '',
         key: form.getFieldValue('secondaryKey') || '',
-        original_link: form.getFieldValue('originalLink') || ''
+        original_url: form.getFieldValue('originalLink') || ''
       });
     } catch (error) {
       message.error('创建失败');
@@ -281,7 +332,7 @@ export const SystemListPage: React.FC = () => {
       render: (_: unknown, record: AnkouConfigItem) => (
         <Space size="middle">
           <Button type="link" className={styles.smallButton} onClick={() => handleEdit(record)}>编辑</Button>
-          <Button type="link" className={styles.smallButton} danger>删除</Button>
+          <Button type="link" className={styles.smallButton} danger onClick={() => handleDelete(record)}>删除</Button>
         </Space>
       ),
     },
@@ -348,7 +399,7 @@ export const SystemListPage: React.FC = () => {
                 size: pagination.pageSize,
                 original_key: form.getFieldValue('originalKey') || '',
                 key: form.getFieldValue('secondaryKey') || '',
-                original_link: form.getFieldValue('originalLink') || ''
+                original_url: form.getFieldValue('originalLink') || ''
               })} />
               <Button icon={<BarsOutlined />} />
               <Button icon={<SettingOutlined />} />
@@ -370,7 +421,7 @@ export const SystemListPage: React.FC = () => {
                 size: pageSize, 
                 original_key: form.getFieldValue('originalKey') || '', 
                 key: form.getFieldValue('secondaryKey') || '', 
-                original_link: form.getFieldValue('originalLink') || '' 
+                original_url: form.getFieldValue('originalLink') || '' 
               });
             }
           }}
@@ -446,6 +497,19 @@ export const SystemListPage: React.FC = () => {
             <Input type="number" placeholder="请输入比例" />
           </Form.Item>
         </Form>
+      </Modal>
+
+      <Modal
+        title="删除确认"
+        open={isDeleteModalVisible}
+        onOk={handleDeleteConfirm}
+        onCancel={() => {
+          setIsDeleteModalVisible(false);
+          setDeletingRecord(null);
+        }}
+        confirmLoading={loading}
+      >
+        <p>确定要删除这条配置吗？此操作不可恢复。</p>
       </Modal>
     </Layout>
   );

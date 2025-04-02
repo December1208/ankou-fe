@@ -1,4 +1,3 @@
-
 import { LoginPage } from "./app/modules/LoginPage"
 import {
   createBrowserRouter,
@@ -10,12 +9,14 @@ import { useContext, useEffect, useState } from "react";
 import { UserStoreContext } from "./app/globalStore/userStore";
 import { LoginProtectProvider } from "./app/components/loginProtect";
 import { SystemListPage } from "./app/modules/NewHomePage";
-
+import { ConfigStatisticsPage, QueryPage } from "./app/modules/QueryConfigPage";
+import { RedirectPage } from "./app/modules/RedirectPage";
+import { getOrCreateSessionId } from "./utils/session";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <SystemListPage />,
+    element: <QueryPage />,
   },
   {
     path: "/login",
@@ -24,13 +25,25 @@ const router = createBrowserRouter([
   {
     path: "/home",
     element: <SystemListPage />,
+  },
+  {
+    path: "/statistics",
+    element: <ConfigStatisticsPage />,
+  },
+  {
+    path: "/s/:token/:md5_str",
+    element: <RedirectPage />,
   }
 ])
-
 
 function App() {
   const userContext = useContext(UserStoreContext)
   const [isUserLoaded, setIsUserLoaded] = useState(false);
+
+  useEffect(() => {
+    // 在应用启动时处理 sessionId
+    getOrCreateSessionId();
+  }, []);
 
   initAPI()
   // useEffect(() => {

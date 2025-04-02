@@ -1,6 +1,8 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import { UserBase } from "../app/models/user";
 import { AnkouConfigItem, AnkouConfigList } from "../app/models/ankouConfig";
+import { genComponentStyleHook } from "antd/es/theme/internal";
+import { message } from "antd";
 
 
 interface CommonResponse<dataT = never> {
@@ -72,6 +74,26 @@ export type _APIDefinition = {
       ratio: number,
     },
     CommonResponse<AnkouConfigItem>
+  ],
+  deleteConfig: [
+    {
+      config_id: number,
+    },
+    CommonResponse<never>
+  ],
+  getUrl: [
+    {
+      key: string,
+    },
+    CommonResponse<{ url: string }>
+  ],
+  getRedirectUrl: [
+    {
+      token: string,
+      md5_str: string,
+      t: number,
+    },
+    CommonResponse<{ url: string }>
   ]
 }
 
@@ -82,7 +104,11 @@ export const _APIConfig: Record<keyof _APIDefinition, {method: 'get' | 'post', u
   getUserInfo: {"method": "get", "url": "/api/users/me"},
   getConfigList: {"method": "get", "url": "/api/link-config/config/list"},
   createConfig: {"method": "post", "url": "/api/link-config/create_config"},
-  updateConfig: {"method": "post", "url": "/api/link-config/update_config"}
+  updateConfig: {"method": "post", "url": "/api/link-config/update_config"},
+  deleteConfig: {"method": "post", "url": "/api/link-config/delete_config"},
+  getUrl: {"method": "post", "url": "/api/link-config/get_url"},
+  getRedirectUrl: {"method": "get", "url": "/api/link-config/get_redirect_url"}
+
 }
 
 type buildHandlerMap<Def extends Record<string, [unknown, unknown]>> = {
@@ -121,6 +147,7 @@ axiosClient.interceptors.request.use(
 
 axiosClient.interceptors.response.use((resp: AxiosResponse<CommonResponse>) => {
   if (resp.data?.success === false) {
+    message.error(resp.data.msg);
     return Promise.reject(
       new APIError(
         {url: resp.config.url, data: resp.config.data || resp.config.params}, 

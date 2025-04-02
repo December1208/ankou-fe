@@ -1,0 +1,208 @@
+.layout {
+  height: 100vh;
+  overflow: hidden;
+}
+
+.sider {
+  overflow: hidden;
+  transition: all 0.2s;
+  position: relative;
+  z-index: 1;
+}
+
+.logo {
+  height: 32px;
+  margin: 16px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.header {
+  background: #fff;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+.trigger {
+  font-size: 18px;
+  padding: 0 24px;
+  cursor: pointer;
+}
+
+.content {
+  margin: 24px 16px;
+  padding: 24px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 112px);
+  overflow: hidden;
+}
+
+.headerContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.tableContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin: 0; // 调整外边距
+  padding: 0; // 调整内边距
+  font-size: 10px;
+}
+
+.smallText {
+  :global {
+    .ant-table {
+      font-size: 14px;
+    }
+    
+    .ant-table-thead > tr > th {
+      font-size: 14px;
+      padding: 4px 2px;
+      min-width: 40px;
+    }
+    
+    .ant-table-tbody > tr > td {
+      font-size: 14px;
+      padding: 4px;
+      min-height: 24px;
+      line-height: 1.0;
+    }
+
+    .ant-table-cell {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      padding: 4px;
+    }
+
+    .ant-table-row > td {
+      padding: 2px;
+    }
+  }
+
+}
+
+
+.smallButton {
+    font-size: 14px; // 设置特定按钮的字体大小为 10px
+  }
+
+.container {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+
+  &.queryContainer {
+    max-width: 800px;
+  }
+}
+
+.backButton {
+  position: absolute;
+  left: 20px;
+  top: 20px;
+  padding: 0;
+  height: auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  z-index: 1;
+  color: #4CAF50;
+}
+
+.title {
+  font-size: 24px;
+  margin-top: 20px;
+
+  &.queryTitle {
+    margin-bottom: 40px;
+    margin-top: 0;
+  }
+}
+
+.form {
+  width: 100%;
+  margin-top: 20px;
+}
+
+.textarea {
+  width: 100%;
+  height: 120px;
+  resize: none;
+  margin-bottom: 10px;
+}
+
+.input {
+  width: 100%;
+  height: 40px;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+
+  .button {
+    height: 50px;
+    font-size: 16px;
+    flex: 1;
+  }
+}
+
+.button {
+  height: 50px;
+  font-size: 16px;
+
+  &.primary {
+    background-color: #4CAF50;
+    border-color: #4CAF50;
+  }
+
+  &.secondary {
+    background-color: #f4811f;
+    border-color: #f4811f;
+  }
+
+  &.fullWidth {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+}
+
+.qrCodeContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.qrCodeUrl {
+  word-break: break-all;
+  text-align: center;
+  max-width: 300px;
+}
+
+.table {
+  width: 100%;
+}
+
+.smallText {
+  font-size: 12px;
+}
