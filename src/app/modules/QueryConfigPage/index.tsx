@@ -87,7 +87,7 @@ export const ConfigStatisticsPage: React.FC = () => {
       >
         返回
       </Button>
-      <h1 className={styles.title}>客如云-统计批量查询</h1>
+      <h1 className={styles.title}>统计批量查询</h1>
       <Form 
         form={form}
         className={styles.form}
@@ -156,7 +156,7 @@ export const QueryPage: React.FC = () => {
 
     return (
       <div className={`${styles.container} ${styles.queryContainer}`}>
-        <h1 className={`${styles.title} ${styles.queryTitle}`}>客如云-获取二维码</h1>
+        <h1 className={`${styles.title} ${styles.queryTitle}`}>获取二维码</h1>
         <Form 
           form={form}
           className={styles.form}
