@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # 配置变量
-IMAGE_NAME="all-in-one-fe:latest"
-IMAGE_FILE="all-in-one-fe.tar"
+IMAGE_NAME="ankou-fe:latest"
+IMAGE_FILE="ankou-fe.tar"
 REMOTE_USER="root"
-REMOTE_HOST="10.23.0.153"
-REMOTE_DIR="/root"
+REMOTE_HOST="121.4.100.51"
+REMOTE_DIR="/home/ubuntu"
 
 # 保存本地镜像为 tar 文件
 echo "Saving Docker image to tar file..."
