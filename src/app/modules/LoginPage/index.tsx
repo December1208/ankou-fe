@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Form, Input, Button, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
@@ -90,7 +90,3 @@ export const LoginPage: React.FC = () => {
     </div>
   );
 };
-
-function pbkdf2Sync(password: string, salt: string, iterations: number, keylen: number, digest: string) {
-    throw new Error("Function not implemented.");
-}

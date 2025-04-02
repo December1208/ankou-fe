@@ -1,7 +1,6 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import { UserBase } from "../app/models/user";
 import { AnkouConfigItem, AnkouConfigList, ConfigStatistics } from "../app/models/ankouConfig";
-import { genComponentStyleHook } from "antd/es/theme/internal";
 import { message } from "antd";
 
 
@@ -107,7 +106,7 @@ export const _APIConfig: Record<keyof _APIDefinition, {method: 'get' | 'post', u
   login: {"method": "post", "url": "/api/account/login"},
   logout: {"method": "post", "url": "/api/account/logout"},
   addFeatureBlance: {"method": "post", "url": "/api/staff/user/add_feature_blance"},
-  getUserInfo: {"method": "get", "url": "/api/users/me"},
+  getUserInfo: {"method": "get", "url": "/api/account/me"},
   getConfigList: {"method": "get", "url": "/api/link-config/config/list"},
   createConfig: {"method": "post", "url": "/api/link-config/create_config"},
   updateConfig: {"method": "post", "url": "/api/link-config/update_config"},

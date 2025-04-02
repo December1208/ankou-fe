@@ -3,7 +3,7 @@
 # 配置变量
 IMAGE_NAME="ankou-fe:latest"
 IMAGE_FILE="ankou-fe.tar"
-REMOTE_USER="root"
+REMOTE_USER="ubuntu"
 REMOTE_HOST="121.4.100.51"
 REMOTE_DIR="/home/ubuntu"
 

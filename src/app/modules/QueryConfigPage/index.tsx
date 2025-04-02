@@ -1,25 +1,12 @@
 import React, { useState } from 'react';
-import { Layout, Form, Input, Button, message, Table, Tooltip } from 'antd';
-import { SearchOutlined, ArrowLeftOutlined } from '@ant-design/icons';
+import { Form, Input, Button, message, Table, Tooltip } from 'antd';
+import { ArrowLeftOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import styles from './index.module.scss';
 import { APIClient } from '../../../apis/base';
 import { QRCode } from 'antd';
 import { ConfigStatisticsItem } from '../../models/ankouConfig';
 
-interface QueryResult {
-  id: number;
-  original_key: string;
-  key: string;
-  ratio: number;
-  original_url: string;
-  url: string;
-  original_count: number[];
-  secondary_count: number[];
-  difference: number;
-  created_at: number;
-  updated_at: number;
-}
 
 export const ConfigStatisticsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -71,7 +58,7 @@ export const ConfigStatisticsPage: React.FC = () => {
         title: '总数',
         key: 'total',
         width: 100,
-        render: (_, record: ConfigStatisticsItem) => {
+        render: (_: any, record: ConfigStatisticsItem) => {
           return record.uv.reduce((sum, item) => sum + item.count, 0);
         }
       }
