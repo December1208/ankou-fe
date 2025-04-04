@@ -1,0 +1,77 @@
+.layout {
+  min-height: 100vh;
+}
+
+.sider {
+  box-shadow: 2px 0 8px 0 rgba(29, 35, 41, 0.05);
+}
+
+.logo {
+  height: 32px;
+  margin: 16px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  padding: 0;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+
+  .headerRight {
+    margin-left: auto;
+    margin-right: 24px;
+  }
+}
+
+.trigger {
+  padding: 0 24px;
+  font-size: 18px;
+  line-height: 64px;
+  cursor: pointer;
+  transition: color 0.3s;
+
+  &:hover {
+    color: #1890ff;
+  }
+}
+
+.content {
+  margin: 24px;
+  padding: 24px;
+  background: #fff;
+  min-height: 280px;
+}
+
+.searchForm {
+  margin-bottom: 24px;
+}
+
+.headerContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+
+  .title {
+    font-size: 16px;
+    font-weight: 500;
+  }
+}
+
+.tableContainer {
+  :global {
+    .ant-table-thead > tr > th {
+      background: #fafafa;
+    }
+  }
+}
+
+.smallButton {
+  padding: 0;
+}
+
+.smallText {
+  font-size: 12px;
+}

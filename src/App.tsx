@@ -5,11 +5,12 @@ import {
 } from "react-router-dom";
 import { initAPI } from "./apis/base";
 import { useEffect } from "react";
-import { LoginProtectProvider } from "./app/components/loginProtect";
+import { AdminProtectProvider, LoginProtectProvider } from "./app/components/loginProtect";
 import { SystemListPage } from "./app/modules/NewHomePage";
 import { ConfigStatisticsPage, QueryPage } from "./app/modules/QueryConfigPage";
 import { RedirectPage } from "./app/modules/RedirectPage";
 import { getOrCreateSessionId } from "./utils/session";
+import { AccountPage } from "./app/modules/AccountPage"
 
 const router = createBrowserRouter([
   {
@@ -23,6 +24,10 @@ const router = createBrowserRouter([
   {
     path: "/home",
     element: <LoginProtectProvider> <SystemListPage /></LoginProtectProvider>
+  },
+  {
+    path: "/account",
+    element: <AdminProtectProvider><AccountPage /></AdminProtectProvider>,
   },
   {
     path: "/statistics",

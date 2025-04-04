@@ -4,15 +4,15 @@ import {
   MenuFoldOutlined, 
   MenuUnfoldOutlined,
   ReloadOutlined,
-  BarsOutlined,
-  SettingOutlined,
   PlusOutlined,
 } from '@ant-design/icons';
+
+const { Header, Sider, Content } = Layout;
 import styles from './index.module.scss';
 import { APIClient } from '../../../apis/base';
 import { AnkouConfigItem, UVData } from '../../models/ankouConfig';
+import { CommonLayout } from '../../components/CommonLayout';
 
-const { Header, Sider, Content } = Layout;
 
 interface QueryParams {
   original_key?: string;
@@ -339,178 +339,85 @@ export const SystemListPage: React.FC = () => {
   ];
 
   return (
-    <Layout className={styles.layout}>
-      <Sider 
-        width={200} 
-        theme="light" 
-        collapsible 
-        collapsed={collapsed}
-        trigger={null}
-        collapsedWidth={0}
-        className={styles.sider}
-      >
-        <div className={styles.logo} />
-        <Menu theme="light" mode="inline" defaultSelectedKeys={['1']}>
-          <Menu.Item key="1">首页</Menu.Item>
-        </Menu>
-      </Sider>
-      <Layout style={{ overflow: 'hidden' }}>
-        <Header className={styles.header}>
-          {React.createElement(collapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {
-            className: styles.trigger,
-            onClick: () => setCollapsed(!collapsed),
-          })}
-          <Form 
-            form={form}
-            layout="inline" 
-            style={{ flex: 1 }}
-            onFinish={handleQuery}
-          >
-            <Form.Item name="originalKey" label="原卡密">
-              <Input placeholder="请输入" />
-            </Form.Item>
-            <Form.Item name="secondaryKey" label="副卡密">
-              <Input placeholder="请输入" />
-            </Form.Item>
-            <Form.Item name="originalLink" label="原链接">
-              <Input placeholder="请输入" />
-            </Form.Item>
-            <Form.Item>
-              <Button type="primary" htmlType="submit" loading={loading}>查询</Button>
-              <Button style={{ marginLeft: 8 }} onClick={handleReset}>重置</Button>
-              <Button type="link" style={{ float: 'right' }}>展开 ▼</Button>
-            </Form.Item>
-          </Form>
-        </Header>
-        <Content className={styles.content}>
-          <div className={styles.headerContent}>
-            <div className={styles.title}>查询列表</div>
-            <Space>
-              <Button 
-                type="primary" 
-                icon={<PlusOutlined />}
-                onClick={() => setIsModalVisible(true)}
-              >
-                新建
-              </Button>
-              <Button danger>删除</Button>
-              <Button icon={<ReloadOutlined />} onClick={() => fetchData({
-                page: pagination.current,
-                size: pagination.pageSize,
-                original_key: form.getFieldValue('originalKey') || '',
-                key: form.getFieldValue('secondaryKey') || '',
-                original_url: form.getFieldValue('originalLink') || ''
-              })} />
-              <Button icon={<BarsOutlined />} />
-              <Button icon={<SettingOutlined />} />
-            </Space>
-          </div>
-          <div className={styles.tableContainer}>
+    <CommonLayout>
+      <Content className={styles.content}>
+        <Form 
+          form={form}
+          layout="inline" 
+          className={styles.searchForm}
+          onFinish={handleQuery}
+        >
+          <Form.Item name="originalKey" label="原卡密">
+            <Input placeholder="请输入" />
+          </Form.Item>
+          <Form.Item name="secondaryKey" label="副卡密">
+            <Input placeholder="请输入" />
+          </Form.Item>
+          <Form.Item name="originalLink" label="原链接">
+            <Input placeholder="请输入" />
+          </Form.Item>
+          <Form.Item>
+            <Button 
+              type="primary" 
+              htmlType="submit" 
+              loading={loading}
+              style={{ width: 80 }}  // 添加固定宽度
+            >
+              查询
+            </Button>
+            <Button 
+              style={{ marginLeft: 8, width: 80 }}  // 添加固定宽度
+              onClick={handleReset}
+            >
+              重置
+            </Button>
+          </Form.Item>
+        </Form>
+        <div className={styles.headerContent}>
+          <div className={styles.title}>查询列表</div>
+          <Space>
+            <Button 
+              type="primary" 
+              icon={<PlusOutlined />}
+              onClick={() => setIsModalVisible(true)}
+            >
+              新建
+            </Button>
+            <Button danger>删除</Button>
+            <Button icon={<ReloadOutlined />} onClick={() => fetchData({
+              page: pagination.current,
+              size: pagination.pageSize,
+              original_key: form.getFieldValue('originalKey') || '',
+              key: form.getFieldValue('secondaryKey') || '',
+              original_url: form.getFieldValue('originalLink') || ''
+            })} />
+          </Space>
+        </div>
+        <div className={styles.tableContainer}>
           <Table 
-          columns={columns} 
-          dataSource={dataSource}
-          loading={loading}
-          bordered
-          pagination={{
-            ...pagination, // 确保 pagination 包含 total
-            showSizeChanger: true, // 允许用户更改每页显示条数
-            onChange: (page, pageSize) => {
-              setPagination({ current: page, pageSize, total: pagination.total });
-              fetchData({ 
-                page, 
-                size: pageSize, 
-                original_key: form.getFieldValue('originalKey') || '', 
-                key: form.getFieldValue('secondaryKey') || '', 
-                original_url: form.getFieldValue('originalLink') || '' 
-              });
-            }
-          }}
-          scroll={{ y: 'calc(100vh - 300px)' }}
-        //   size="small"
-          className={styles.smallText}
-        />
-          </div>
-        </Content>
-      </Layout>
-
-      <Modal
-        title="新建配置"
-        open={isModalVisible}
-        onOk={() => newConfigForm.submit()}
-        onCancel={() => {
-          setIsModalVisible(false);
-          newConfigForm.resetFields();
-        }}
-        confirmLoading={loading}
-      >
-        <Form
-          form={newConfigForm}
-          layout="vertical"
-          onFinish={handleCreate}
-        >
-          <Form.Item
-            name="original_key"
-            label="原卡密"
-            rules={[{ required: true, message: '请输入原卡密' }]}
-          >
-            <Input placeholder="请输入原卡密" />
-          </Form.Item>
-
-          <Form.Item
-            name="original_url"
-            label="原链接"
-            rules={[{ required: true, message: '请输入原链接' }]}
-          >
-            <Input placeholder="请输入原链接" />
-          </Form.Item>
-          <Form.Item
-            name="ratio"
-            label="比例"
-            rules={[{ required: true, message: '请输入比例' }]}
-          >
-            <Input type="number" placeholder="请输入比例" />
-          </Form.Item>
-        </Form>
-      </Modal>
-
-      <Modal
-        title="编辑配置"
-        open={isEditModalVisible} // 使用编辑状态
-        onOk={() => updateConfigForm.submit()}
-        onCancel={() => {
-          setIsEditModalVisible(false);
-          updateConfigForm.resetFields();
-          setEditingRecord(null); // 重置编辑记录
-        }}
-        confirmLoading={loading}
-      >
-        <Form
-          form={updateConfigForm}
-          layout="vertical"
-          onFinish={handleUpdate} // 使用 handleUpdate 处理编辑
-        >
-          <Form.Item
-            name="ratio"
-            label="比例"
-            rules={[{ required: true, message: '请输入比例' }]}
-          >
-            <Input type="number" placeholder="请输入比例" />
-          </Form.Item>
-        </Form>
-      </Modal>
-
-      <Modal
-        title="删除确认"
-        open={isDeleteModalVisible}
-        onOk={handleDeleteConfirm}
-        onCancel={() => {
-          setIsDeleteModalVisible(false);
-          setDeletingRecord(null);
-        }}
-        confirmLoading={loading}
-      >
-        <p>确定要删除这条配置吗？此操作不可恢复。</p>
-      </Modal>
-    </Layout>
+            columns={columns} 
+            dataSource={dataSource}
+            loading={loading}
+            bordered
+            pagination={{
+              ...pagination,
+              showSizeChanger: true,
+              onChange: (page, pageSize) => {
+                setPagination({ current: page, pageSize, total: pagination.total });
+                fetchData({ 
+                  page, 
+                  size: pageSize, 
+                  original_key: form.getFieldValue('originalKey') || '', 
+                  key: form.getFieldValue('secondaryKey') || '', 
+                  original_url: form.getFieldValue('originalLink') || '' 
+                });
+              }
+            }}
+            scroll={{ y: 'calc(100vh - 300px)' }}
+            className={styles.smallText}
+          />
+        </div>
+      </Content>
+    </CommonLayout>
   );
 };

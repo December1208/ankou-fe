@@ -1,5 +1,5 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
-import { UserBase } from "../app/models/user";
+import { UserBase, AccountItem } from "../app/models/user";
 import { AnkouConfigItem, AnkouConfigList, ConfigStatistics } from "../app/models/ankouConfig";
 import { message } from "antd";
 
@@ -35,14 +35,6 @@ export type _APIDefinition = {
   ],
   logout: [
     never,
-    CommonResponse<never>
-  ],
-  addFeatureBlance: [
-    {
-      accountName: string;
-      amount: number;
-      featureType: string
-    },
     CommonResponse<never>
   ],
   getUserInfo: [
@@ -99,13 +91,53 @@ export type _APIDefinition = {
       keys: string[],
     },
     CommonResponse<ConfigStatistics>
-  ]
+  ],
+
+  editSelfInfo: [
+    {
+      name?: string,
+      new_password?: string,
+      old_password?: string,
+    },
+    CommonResponse<never>
+  ],
+  createAccount: [
+    {
+      name: string,
+      password: string,
+    },
+    CommonResponse<never>
+  ],
+  editAccount: [
+    {
+      id: number,
+      name?: string,
+      password?: string,
+    },
+    CommonResponse<never>
+  ],
+  deleteAccount: [
+    {
+      id: number,
+    },
+    CommonResponse<never>
+  ],
+  getAccountList: [
+    {
+      name?: string
+      page: number,
+      size: number,
+    },
+    CommonResponse<{
+      accounts: AccountItem[],
+      total: number,
+    }>
+  ],
 }
 
 export const _APIConfig: Record<keyof _APIDefinition, {method: 'get' | 'post', url: string}> = {
   login: {"method": "post", "url": "/api/account/login"},
   logout: {"method": "post", "url": "/api/account/logout"},
-  addFeatureBlance: {"method": "post", "url": "/api/staff/user/add_feature_blance"},
   getUserInfo: {"method": "get", "url": "/api/account/me"},
   getConfigList: {"method": "get", "url": "/api/link-config/config/list"},
   createConfig: {"method": "post", "url": "/api/link-config/create_config"},
@@ -114,6 +146,12 @@ export const _APIConfig: Record<keyof _APIDefinition, {method: 'get' | 'post', u
   getUrl: {"method": "post", "url": "/api/link-config/get_url"},
   getRedirectUrl: {"method": "get", "url": "/api/link-config/get_redirect_url"},
   getStatistics: {"method": "post", "url": "/api/link-config/config_statistics"},
+  
+  editSelfInfo: {"method": "post", "url": "/api/account/edit_self_info"},
+  createAccount: {"method": "post", "url": "/api/account/create_account"},
+  editAccount: {"method": "post", "url": "/api/account/edit_account"},
+  deleteAccount: {"method": "post", "url": "/api/account/delete_account"},
+  getAccountList: {"method": "get", "url": "/api/account/get_accounts"},
 }
 
 type buildHandlerMap<Def extends Record<string, [unknown, unknown]>> = {

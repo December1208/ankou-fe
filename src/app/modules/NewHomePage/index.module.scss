@@ -30,20 +30,28 @@
 }
 
 .content {
-  margin: 24px 16px;
-  padding: 24px;
+  margin: 10px;
+  padding-top: 0px;
+  padding: 12px;  // 进一步减小内边距
   background: #fff;
-  display: flex;
-  flex-direction: column;
-  height: calc(100vh - 112px);
-  overflow: hidden;
+  min-height: 280px;
 }
 
 .headerContent {
+  margin-bottom: 12px;  // 保持一致的间距
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
+  
+  .headerRight {
+    margin-right: 24px;
+    
+    span {
+      color: rgba(0, 0, 0, 0.85);
+      font-size: 14px;
+    }
+  }
 }
 
 .title {
@@ -93,6 +101,13 @@
 
 }
 
+.searchForm {
+  margin-bottom: 16px;
+  padding: 24px;
+  padding-left: 0px;
+  background: #fff;
+  border-radius: 2px;
+}
 
 .smallButton {
     font-size: 14px; // 设置特定按钮的字体大小为 10px
