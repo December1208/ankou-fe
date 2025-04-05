@@ -7,8 +7,18 @@ export const RedirectPage: React.FC = () => {
   const { token, md5_str } = useParams<{ token: string; md5_str: string }>();
   const [searchParams] = useSearchParams();
   const [isExpired, setIsExpired] = useState(false);
+  const [isWechat, setIsWechat] = useState(true);
 
   useEffect(() => {
+    // 检查是否是微信浏览器
+    const userAgent = navigator.userAgent.toLowerCase();
+    const isWechatBrowser = /micromessenger/.test(userAgent);
+    setIsWechat(isWechatBrowser);
+
+    if (!isWechatBrowser) {
+      return;
+    }
+
     const t = searchParams.get('t');
     if (!token || !md5_str || !t) {
       setIsExpired(true);
@@ -33,7 +43,12 @@ export const RedirectPage: React.FC = () => {
 
   return (
     <div className={styles.redirectContainer}>
-      {isExpired && (
+      {!isWechat && (
+        <div className={styles.expiredText}>
+          请在微信浏览器中打开
+        </div>
+      )}
+      {isWechat && isExpired && (
         <div className={styles.expiredText}>
           链接失效
         </div>

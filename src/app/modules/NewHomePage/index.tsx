@@ -34,7 +34,6 @@ interface UpdateConfigForm {
 }
 
 export const SystemListPage: React.FC = () => {
-  const [collapsed, setCollapsed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [dataSource, setDataSource] = useState<AnkouConfigItem[]>([]);
   const [form] = Form.useForm();
@@ -383,7 +382,6 @@ export const SystemListPage: React.FC = () => {
             >
               新建
             </Button>
-            <Button danger>删除</Button>
             <Button icon={<ReloadOutlined />} onClick={() => fetchData({
               page: pagination.current,
               size: pagination.pageSize,
@@ -417,6 +415,89 @@ export const SystemListPage: React.FC = () => {
             className={styles.smallText}
           />
         </div>
+        <Modal
+          title="新建配置"
+          open={isModalVisible}
+          onOk={() => newConfigForm.submit()}
+          onCancel={() => {
+            setIsModalVisible(false);
+            newConfigForm.resetFields();
+          }}
+          confirmLoading={loading}
+        >
+          <Form
+            form={newConfigForm}
+            layout="vertical"
+            onFinish={handleCreate}
+          >
+            <Form.Item
+              name="original_key"
+              label="原卡密"
+              rules={[{ required: true, message: '请输入原卡密' }]}
+            >
+              <Input placeholder="请输入原卡密" />
+            </Form.Item>
+            <Form.Item
+              name="original_url"
+              label="原链接"
+              rules={[{ required: true, message: '请输入原链接' }]}
+            >
+              <Input placeholder="请输入原链接" />
+            </Form.Item>
+            <Form.Item
+              name="ratio"
+              label="比例"
+              rules={[{ required: true, message: '请输入比例' }]}
+            >
+              <Input type="number" placeholder="请输入比例" />
+            </Form.Item>
+          </Form>
+        </Modal>
+
+        {/* 编辑配置弹窗 */}
+        <Modal
+          title="编辑配置"
+          open={isEditModalVisible}
+          onOk={() => updateConfigForm.submit()}
+          onCancel={() => {
+            setIsEditModalVisible(false);
+            updateConfigForm.resetFields();
+          }}
+          confirmLoading={loading}
+        >
+          <Form
+            form={updateConfigForm}
+            layout="vertical"
+            onFinish={handleUpdate}
+          >
+            <Form.Item
+              name="ratio"
+              label="比例"
+              rules={[{ required: true, message: '请输入比例' }]}
+            >
+              <Input type="number" placeholder="请输入比例" />
+            </Form.Item>
+          </Form>
+        </Modal>
+
+        {/* 删除确认弹窗 */}
+        <Modal
+          title="确认删除"
+          open={isDeleteModalVisible}
+          onOk={handleDeleteConfirm}
+          onCancel={() => {
+            setIsDeleteModalVisible(false);
+            setDeletingRecord(null);
+          }}
+          confirmLoading={loading}
+        >
+          <p>确定要删除这条配置吗？</p>
+          <p>原卡密：{deletingRecord?.original_key}</p>
+          <p>副卡密：{deletingRecord?.key}</p>
+        </Modal>
+
+
+
       </Content>
     </CommonLayout>
   );
