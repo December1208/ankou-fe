@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Layout, Menu, Table, Form, Input, Button, Space, message, Modal, Tooltip } from 'antd';
+import { Layout, Table, Form, Input, Button, Space, message, Modal, Tooltip } from 'antd';
 import { 
-  MenuFoldOutlined, 
-  MenuUnfoldOutlined,
   ReloadOutlined,
   PlusOutlined,
 } from '@ant-design/icons';
 
-const { Header, Sider, Content } = Layout;
+const { Content } = Layout;
 import styles from './index.module.scss';
 import { APIClient } from '../../../apis/base';
 import { AnkouConfigItem, UVData } from '../../models/ankouConfig';
