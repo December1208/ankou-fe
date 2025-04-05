@@ -38,9 +38,6 @@ export const LoginPage: React.FC = () => {
   return (
     <div className={styles.loginContainer}>
       <div className={styles.loginCard}>
-        <div className={styles.logo}>
-          <img src="../../public/logo.png" alt="Logo" />
-        </div>
         <div className={styles.title}>系统登录</div>
         
         <Form

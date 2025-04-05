@@ -5,6 +5,7 @@ import styles from './index.module.scss';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useContext } from 'react';
 import { UserStoreContext } from '../../globalStore/userStore';
+import { SYSTEM_CONFIG } from '../../constants';
 
 const { Header, Sider, Content } = Layout;
 
@@ -140,7 +141,7 @@ export const CommonLayout: React.FC<CommonLayoutProps> = ({ children }) => {
         className={styles.sider}
       >
         <div className={styles.logo}>
-            <img src="../../public/logo.png" alt="Logo" />
+            {SYSTEM_CONFIG.NAME}
         </ div>
         <Menu 
           theme="light" 
