@@ -28,7 +28,6 @@ export const LoginPage: React.FC = () => {
         message.error(response.msg || '登陆失败');
       }
     } catch (error) {
-      message.error('登录失败，请检查用户名和密码');
       console.error('登录失败:', error);
     } finally {
       setLoading(false);

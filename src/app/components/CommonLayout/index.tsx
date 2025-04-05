@@ -13,8 +13,40 @@ interface CommonHeaderProps {
   onCollapse: (collapsed: boolean) => void;
 }
 
+import {  Button, Modal, Form, Input, message } from 'antd';
+import CryptoJS from 'crypto-js';
+import { APIClient } from '../../../apis/base';
+
 export const CommonHeader: React.FC<CommonHeaderProps> = ({ collapsed, onCollapse }) => {
   const userContext = useContext(UserStoreContext);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const handleUpdatePassword = async (values: { oldPassword: string; newPassword: string }) => {
+    try {
+      setLoading(true);
+      await APIClient.editSelfInfo({
+        old_password: CryptoJS.MD5(values.oldPassword).toString(),
+        new_password: CryptoJS.MD5(values.newPassword).toString()
+      });
+      message.success('密码修改成功');
+      setIsModalVisible(false);
+      form.resetFields();
+    } catch (error) {
+      message.error('密码修改失败');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogout = () => {
+    userContext.setUser(null);
+    APIClient.logout();
+    navigate('/login');
+  };
+
   return (
     <Header className={styles.header}>
       {React.createElement(collapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {
@@ -22,9 +54,42 @@ export const CommonHeader: React.FC<CommonHeaderProps> = ({ collapsed, onCollaps
         onClick: () => onCollapse(!collapsed),
       })}
       <div className={styles.headerRight}>
-        
-        <span>{userContext.getUser()?.name || 'admin'}</span>
+        <span style={{ marginRight: 16 }}>{"账号名: " + userContext.getUser()?.name || '未登录'}</span>
+        <Button type="link" onClick={() => setIsModalVisible(true)}>修改密码</Button>
+        <Button type="link" onClick={handleLogout}>退出登录</Button>
       </div>
+
+      <Modal
+        title="修改密码"
+        open={isModalVisible}
+        onOk={() => form.submit()}
+        onCancel={() => {
+          setIsModalVisible(false);
+          form.resetFields();
+        }}
+        confirmLoading={loading}
+      >
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={handleUpdatePassword}
+        >
+          <Form.Item
+            name="oldPassword"
+            label="原密码"
+            rules={[{ required: true, message: '请输入原密码' }]}
+          >
+            <Input.Password placeholder="请输入原密码" />
+          </Form.Item>
+          <Form.Item
+            name="newPassword"
+            label="新密码"
+            rules={[{ required: true, message: '请输入新密码' }]}
+          >
+            <Input.Password placeholder="请输入新密码" />
+          </Form.Item>
+        </Form>
+      </Modal>
     </Header>
   );
 };
@@ -81,7 +146,9 @@ export const CommonLayout: React.FC<CommonLayoutProps> = ({ children }) => {
           onClick={({ key }) => handleMenuClick(key)}
         >
           <Menu.Item key="1">首页</Menu.Item>
-          <Menu.Item key="2">用户管理</Menu.Item>
+          {userContext.getUser()?.role === 'admin' && (
+            <Menu.Item key="2">用户管理</Menu.Item>
+          )}
         </Menu>
       </Sider>
       <Layout style={{ overflow: 'hidden' }}>
