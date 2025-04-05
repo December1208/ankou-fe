@@ -16,6 +16,7 @@ interface CommonHeaderProps {
 import {  Button, Modal, Form, Input, message } from 'antd';
 import CryptoJS from 'crypto-js';
 import { APIClient } from '../../../apis/base';
+import { USER_ROLES } from '../../constants';
 
 export const CommonHeader: React.FC<CommonHeaderProps> = ({ collapsed, onCollapse }) => {
   const userContext = useContext(UserStoreContext);
@@ -138,7 +139,9 @@ export const CommonLayout: React.FC<CommonLayoutProps> = ({ children }) => {
         collapsedWidth={0}
         className={styles.sider}
       >
-        <div className={styles.logo} />
+        <div className={styles.logo}>
+            <img src="../../public/logo.png" alt="Logo" />
+        </ div>
         <Menu 
           theme="light" 
           mode="inline" 
@@ -146,7 +149,7 @@ export const CommonLayout: React.FC<CommonLayoutProps> = ({ children }) => {
           onClick={({ key }) => handleMenuClick(key)}
         >
           <Menu.Item key="1">首页</Menu.Item>
-          {userContext.getUser()?.role === 'admin' && (
+          {userContext.getUser()?.role === USER_ROLES.ADMIN && (
             <Menu.Item key="2">用户管理</Menu.Item>
           )}
         </Menu>

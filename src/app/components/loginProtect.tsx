@@ -3,6 +3,7 @@ import { UserStoreContext } from "../globalStore/userStore";
 import { useNavigate } from "react-router-dom";
 import { APIClient } from "../../apis/base";
 import { UserBase } from "../models/user";
+import { USER_ROLES } from "../constants";
 
 export const LoginProtectProvider = ({ children }: { children: React.ReactNode }) => {
     const userContext = useContext(UserStoreContext);
@@ -51,7 +52,7 @@ export const AdminProtectProvider = ({ children }: { children: React.ReactNode }
                 const {name, id, role} = resp.data;
                 const userBase: UserBase = {name, id, role};
                 userContext.setUser(userBase);
-                if (role !== "admin") {
+                if (role !== USER_ROLES.ADMIN) {
                     userContext.setUser(null);
                     navigate("/home");
                 }

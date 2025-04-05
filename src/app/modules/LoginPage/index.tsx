@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import styles from './index.module.scss';
 import { APIClient } from '../../../apis/base';
 import CryptoJS from 'crypto-js';
+import { SYSTEM_CONFIG } from "../../constants";
 
 interface LoginForm {
   username: string;
@@ -38,7 +39,7 @@ export const LoginPage: React.FC = () => {
     <div className={styles.loginContainer}>
       <div className={styles.loginCard}>
         <div className={styles.logo}>
-          <img src="/logo.png" alt="Logo" />
+          <img src="../../public/logo.png" alt="Logo" />
         </div>
         <div className={styles.title}>系统登录</div>
         
@@ -83,7 +84,7 @@ export const LoginPage: React.FC = () => {
         </Form>
 
         <div className={styles.footer}>
-          © 2024 系统名称
+          © 2025 {SYSTEM_CONFIG.NAME}
         </div>
       </div>
     </div>

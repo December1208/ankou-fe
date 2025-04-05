@@ -27,4 +27,3 @@ export type UpdateAccountForm = {
     name: string;
     password: string;
 }
-
