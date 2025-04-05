@@ -10,6 +10,9 @@ import styles from './index.module.scss';
 import { APIClient } from '../../../apis/base';
 import { AnkouConfigItem, UVData } from '../../models/ankouConfig';
 import { CommonLayout } from '../../components/CommonLayout';
+import { useContext } from 'react';
+import { UserStoreContext } from '../../globalStore/userStore';
+import { USER_ROLES } from '../../constants';
 
 
 interface QueryParams {
@@ -32,6 +35,7 @@ interface UpdateConfigForm {
 }
 
 export const SystemListPage: React.FC = () => {
+  const userContext = useContext(UserStoreContext);
   const [loading, setLoading] = useState(false);
   const [dataSource, setDataSource] = useState<AnkouConfigItem[]>([]);
   const [form] = Form.useForm();
@@ -329,7 +333,9 @@ export const SystemListPage: React.FC = () => {
       render: (_: unknown, record: AnkouConfigItem) => (
         <Space size="middle">
           <Button type="link" className={styles.smallButton} onClick={() => handleEdit(record)}>编辑</Button>
-          <Button type="link" className={styles.smallButton} danger onClick={() => handleDelete(record)}>删除</Button>
+          {userContext.getUser()?.role === USER_ROLES.ADMIN && (
+            <Button type="link" className={styles.smallButton} danger onClick={() => handleDelete(record)}>删除</Button>
+          )}
         </Space>
       ),
     },
