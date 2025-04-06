@@ -22,5 +22,18 @@ export default defineConfig({
         changeOrigin: true,
       }
     }
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'antd-vendor': ['antd'],
+          'crypto': ['crypto-js'],
+          'dayjs': ['dayjs']
+        }
+      }
+    },
+    chunkSizeWarningLimit: 1000
   }
 })
