@@ -36,11 +36,6 @@ const QueryPage = lazy(() =>
   }))
 );
 
-const LoadingComponent = () => (
-  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-    <Spin size="large" />
-  </div>
-);
 
 const LoginProtectProvider = lazy(() =>
   import('../components/loginProtect').then(module => ({
