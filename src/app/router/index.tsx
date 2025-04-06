@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { Skeleton, Spin } from 'antd';
+import { Skeleton } from 'antd';
 import { createBrowserRouter } from 'react-router-dom';
 
 
