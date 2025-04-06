@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { Spin } from 'antd';
+import { Skeleton, Spin } from 'antd';
 import { createBrowserRouter } from 'react-router-dom';
 
 
@@ -52,7 +52,7 @@ export const router = createBrowserRouter([
   {
     path: '/',
     element: (
-        <Suspense fallback={<LoadingComponent />}>
+        <Suspense fallback={<Skeleton />}>
             <QueryPage />
         </Suspense>
     )
@@ -60,7 +60,7 @@ export const router = createBrowserRouter([
   {
     path: '/statistics',
     element: (
-      <Suspense fallback={<LoadingComponent />}>
+      <Suspense fallback={<Skeleton />}>
         <StatisticsPage />
       </Suspense>
     )
@@ -68,7 +68,7 @@ export const router = createBrowserRouter([
   {
     path: '/login',
     element: (
-      <Suspense fallback={<LoadingComponent />}>
+      <Suspense fallback={<Skeleton />}>
         <LoginPage />
       </Suspense>
       
@@ -77,7 +77,7 @@ export const router = createBrowserRouter([
   {
     path: '/home',
     element: (
-      <Suspense fallback={<LoadingComponent />}>
+      <Suspense fallback={<Skeleton />}>
         <LoginProtectProvider><SystemListPage /></LoginProtectProvider>
       </Suspense>
     )
@@ -85,7 +85,7 @@ export const router = createBrowserRouter([
   {
     path: '/account',
     element: (
-      <Suspense fallback={<LoadingComponent />}>
+      <Suspense fallback={<Skeleton />}>
         <LoginProtectProvider><AccountPage /></LoginProtectProvider>
       </Suspense>
     )
@@ -93,7 +93,7 @@ export const router = createBrowserRouter([
   {
     path: '/s/:token/:md5_str',
     element: (
-      <Suspense fallback={<LoadingComponent />}>
+      <Suspense fallback={<Skeleton />}>
         <RedirectPage />
       </Suspense>
     )
