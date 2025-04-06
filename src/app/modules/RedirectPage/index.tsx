@@ -2,23 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { APIClient } from '../../../apis/base';
 import styles from './index.module.scss';
+import CryptoJS from 'crypto-js';
 
 export const RedirectPage: React.FC = () => {
   const { token, md5_str } = useParams<{ token: string; md5_str: string }>();
   const [searchParams] = useSearchParams();
   const [isExpired, setIsExpired] = useState(false);
-  const [isWechat, setIsWechat] = useState(true);
 
   useEffect(() => {
-    // 检查是否是微信浏览器
-    const userAgent = navigator.userAgent.toLowerCase();
-    const isWechatBrowser = /micromessenger/.test(userAgent);
-    setIsWechat(isWechatBrowser);
-
-    if (!isWechatBrowser) {
-      return;
-    }
-
     const t = searchParams.get('t');
     if (!token || !md5_str || !t) {
       setIsExpired(true);
@@ -27,10 +18,23 @@ export const RedirectPage: React.FC = () => {
 
     const getRedirectUrl = async () => {
       try {
-        const response = await APIClient.getRedirectUrl({
+        const currentTime = Math.floor(Date.now() / 1000);
+        const params = {
           token,
           md5_str,
-          t: parseInt(t)
+          t1: parseInt(t),
+          t: currentTime,
+        };
+        
+        // 按键名排序并拼接参数
+        const signStr = Object.keys(params)
+          .sort()
+          .map(key => `${key}=${params[key as keyof typeof params]}`)
+          .join('&');
+        
+        const response = await APIClient.getRedirectUrl({
+          ...params,
+          sign: CryptoJS.MD5(signStr).toString()
         });
         window.location.href = response.data.url;
       } catch (error) {
@@ -43,12 +47,7 @@ export const RedirectPage: React.FC = () => {
 
   return (
     <div className={styles.redirectContainer}>
-      {!isWechat && (
-        <div className={styles.expiredText}>
-          请在微信浏览器中打开
-        </div>
-      )}
-      {isWechat && isExpired && (
+      {isExpired && (
         <div className={styles.expiredText}>
           链接失效
         </div>

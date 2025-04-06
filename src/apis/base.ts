@@ -56,6 +56,9 @@ export type _APIDefinition = {
       original_key: string,
       original_url: string,
       ratio: number,
+      start_at: number,
+      end_at: number,
+      
     },
     CommonResponse<AnkouConfigItem>
   ],
@@ -63,6 +66,8 @@ export type _APIDefinition = {
     {
       config_id: number,
       ratio: number,
+      start_at: number,
+      end_at: number,
     },
     CommonResponse<AnkouConfigItem>
   ],
@@ -82,7 +87,9 @@ export type _APIDefinition = {
     {
       token: string,
       md5_str: string,
+      t1: number,
       t: number,
+      sign: string,
     },
     CommonResponse<{ url: string }>
   ],

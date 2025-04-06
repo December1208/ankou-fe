@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Layout, Table, Form, Input, Button, Space, message, Modal, Tooltip } from 'antd';
+import { Layout, Table, Form, Input, Button, Space, message, Modal, Tooltip, DatePicker } from 'antd';
 import { 
   ReloadOutlined,
   PlusOutlined,
@@ -13,6 +13,7 @@ import { CommonLayout } from '../../components/CommonLayout';
 import { useContext } from 'react';
 import { UserStoreContext } from '../../globalStore/userStore';
 import { USER_ROLES } from '../../constants';
+import dayjs from 'dayjs';
 
 
 interface QueryParams {
@@ -23,15 +24,21 @@ interface QueryParams {
   size: number;
 }
 
+// Update NewConfigForm interface
 interface NewConfigForm {
   original_key: string;
   original_url: string;
   ratio: number;
+  start_at: dayjs.Dayjs;  // Change to dayjs.Dayjs
+  end_at: dayjs.Dayjs;    // Change to dayjs.Dayjs
 }
 
+// 修改 UpdateConfigForm 接口
 interface UpdateConfigForm {
-    config_id: number
-    ratio: number
+    config_id: number;
+    ratio: number;
+    start_at: dayjs.Dayjs;
+    end_at: dayjs.Dayjs;
 }
 
 export const SystemListPage: React.FC = () => {
@@ -65,20 +72,29 @@ export const SystemListPage: React.FC = () => {
   }, []); // 空依赖数组表示只在组件挂载时执行一次
 
   const handleEdit = (record: AnkouConfigItem) => {
-    setEditingRecord(record); // 设置当前编辑的记录
-    console.log(record.ratio)
-    updateConfigForm.setFieldsValue({ ratio: record.ratio, config_id: record.id }); // 设置表单初始值
-    setIsEditModalVisible(true); // 显示编辑弹窗
+    setEditingRecord(record);
+    updateConfigForm.setFieldsValue({ 
+      ratio: record.ratio, 
+      config_id: record.id,
+      start_at: dayjs(record.start_at * 1000),
+      end_at: dayjs(record.end_at * 1000)
+    });
+    setIsEditModalVisible(true);
   };
 
   const handleUpdate = async (values: UpdateConfigForm) => {
     try {
       if (!editingRecord) {
         setIsEditModalVisible(false);
-        return
+        return;
       }
       setLoading(true);
-      await APIClient.updateConfig({config_id: editingRecord.id, ratio: values.ratio}); // 调用更新 API
+      await APIClient.updateConfig({
+        config_id: editingRecord.id,
+        ratio: values.ratio,
+        start_at: Math.floor(values.start_at.valueOf() / 1000),
+        end_at: Math.floor(values.end_at.valueOf() / 1000)
+      });
       message.success('更新成功');
       setIsEditModalVisible(false);
       updateConfigForm.resetFields();
@@ -199,7 +215,11 @@ export const SystemListPage: React.FC = () => {
   const handleCreate = async (values: NewConfigForm) => {
     try {
       setLoading(true);
-      await APIClient.createConfig(values);
+      await APIClient.createConfig({
+        ...values,
+        start_at: Math.floor(values.start_at.valueOf() / 1000),
+        end_at: Math.floor(values.end_at.valueOf() / 1000)
+      });
       message.success('创建成功');
       setIsModalVisible(false);
       newConfigForm.resetFields();
@@ -308,6 +328,22 @@ export const SystemListPage: React.FC = () => {
       key: 'difference',
       width: 80,
       ellipsis: true
+    },
+    {
+      title: '开始时间',
+      dataIndex: 'start_at',
+      key: 'start_at',
+      width: 150,
+      ellipsis: true,
+      render: (timestamp: number) => new Date(timestamp * 1000).toLocaleString().replace(/\//g, '-')
+    },
+    {
+        title: '结束时间',
+        dataIndex: 'end_at',
+        key: 'end_at',
+        width: 150,
+        ellipsis: true,
+        render: (timestamp: number) => new Date(timestamp * 1000).toLocaleString().replace(/\//g, '-')
     },
     {
       title: '创建时间',
@@ -455,6 +491,26 @@ export const SystemListPage: React.FC = () => {
             >
               <Input type="number" placeholder="请输入比例" />
             </Form.Item>
+            <Form.Item
+              name="start_at"
+              label="开始时间"
+              rules={[{ required: true, message: '请选择开始时间' }]}
+            >
+              <DatePicker 
+                showTime 
+                style={{ width: '100%' }}
+              />
+            </Form.Item>
+            <Form.Item
+              name="end_at"
+              label="结束时间"
+              rules={[{ required: true, message: '请选择结束时间' }]}
+            >
+              <DatePicker 
+                showTime 
+                style={{ width: '100%' }}
+              />
+            </Form.Item>
           </Form>
         </Modal>
 
@@ -480,6 +536,26 @@ export const SystemListPage: React.FC = () => {
               rules={[{ required: true, message: '请输入比例' }]}
             >
               <Input type="number" placeholder="请输入比例" />
+            </Form.Item>
+            <Form.Item
+              name="start_at"
+              label="开始时间"
+              rules={[{ required: true, message: '请选择开始时间' }]}
+            >
+              <DatePicker 
+                showTime 
+                style={{ width: '100%' }}
+              />
+            </Form.Item>
+            <Form.Item
+              name="end_at"
+              label="结束时间"
+              rules={[{ required: true, message: '请选择结束时间' }]}
+            >
+              <DatePicker 
+                showTime 
+                style={{ width: '100%' }}
+              />
             </Form.Item>
           </Form>
         </Modal>

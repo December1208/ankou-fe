@@ -8,6 +8,8 @@ export type AnkouConfigItem = {
     key: string
     url: string
     ratio: number
+    start_at: number
+    end_at: number
     created_at: number
     updated_at: number
 }
