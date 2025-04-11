@@ -54,7 +54,7 @@ export const RedirectPage: React.FC = () => {
         </div>
       ) : redirectUrl ? (
         <iframe
-          src="www.baidu.com"
+          src={redirectUrl}
           className={styles.iframe}
           title="redirect content"
           allowFullScreen
