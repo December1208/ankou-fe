@@ -8,6 +8,7 @@ export const RedirectPage: React.FC = () => {
   const { token, md5_str } = useParams<{ token: string; md5_str: string }>();
   const [searchParams] = useSearchParams();
   const [isExpired, setIsExpired] = useState(false);
+  const [redirectUrl, setRedirectUrl] = useState<string>('');
 
   useEffect(() => {
     const t = searchParams.get('t');
@@ -36,7 +37,7 @@ export const RedirectPage: React.FC = () => {
           ...params,
           sign: CryptoJS.MD5(signStr).toString()
         });
-        window.location.href = response.data.url;
+        setRedirectUrl(response.data.url);
       } catch (error) {
         setIsExpired(true);
       }
@@ -47,11 +48,18 @@ export const RedirectPage: React.FC = () => {
 
   return (
     <div className={styles.redirectContainer}>
-      {isExpired && (
+      {isExpired ? (
         <div className={styles.expiredText}>
           链接失效
         </div>
-      )}
+      ) : redirectUrl ? (
+        <iframe
+          src="www.baidu.com"
+          className={styles.iframe}
+          title="redirect content"
+          allowFullScreen
+        />
+      ) : null}
     </div>
   );
 };
