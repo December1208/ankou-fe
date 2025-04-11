@@ -86,7 +86,7 @@ export const router = createBrowserRouter([
     )
   },
   {
-    path: '/s/:token/:md5_str',
+    path: '/s',
     element: (
       <Suspense fallback={<Skeleton />}>
         <RedirectPage />
