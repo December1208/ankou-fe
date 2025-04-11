@@ -1,18 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { APIClient } from '../../../apis/base';
 import styles from './index.module.scss';
 import CryptoJS from 'crypto-js';
 
 export const RedirectPage: React.FC = () => {
-  const { token, md5_str } = useParams<{ token: string; md5_str: string }>();
   const [searchParams] = useSearchParams();
   const [isExpired, setIsExpired] = useState(false);
   const [redirectUrl, setRedirectUrl] = useState<string>('');
 
   useEffect(() => {
-    const t = searchParams.get('t');
-    if (!token || !md5_str || !t) {
+    const key = searchParams.get('key');
+    if (!key) {
       setIsExpired(true);
       return;
     }
@@ -21,9 +20,7 @@ export const RedirectPage: React.FC = () => {
       try {
         const currentTime = Math.floor(Date.now() / 1000);
         const params = {
-          token,
-          md5_str,
-          t1: parseInt(t),
+          key: key,
           t: currentTime,
         };
         
@@ -44,7 +41,7 @@ export const RedirectPage: React.FC = () => {
     };
     
     getRedirectUrl();
-  }, [token, md5_str, searchParams]);
+  }, [searchParams]);
 
   return (
     <div className={styles.redirectContainer}>

@@ -85,9 +85,7 @@ export type _APIDefinition = {
   ],
   getRedirectUrl: [
     {
-      token: string,
-      md5_str: string,
-      t1: number,
+      key: string,
       t: number,
       sign: string,
     },
