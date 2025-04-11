@@ -6,6 +6,7 @@ import styles from './index.module.scss';
 import { APIClient } from '../../../apis/base';
 import { QRCode } from 'antd';
 import { ConfigStatisticsItem } from '../../models/ankouConfig';
+import { utils as xlsxUtils, writeFile } from 'xlsx';
 
 
 export const ConfigStatisticsPage: React.FC = () => {
@@ -19,8 +20,13 @@ export const ConfigStatisticsPage: React.FC = () => {
     try {
       console.log(values)
       setLoading(true);
+      const keys = values.key.split('\n').map(item => item.trim()).filter(item => item !== '')
+      if (keys.length > 10) {
+        message.error('最多支持10个卡密');
+        return;
+      }
       const response = await APIClient.getStatistics({
-        keys: values.key.split('\n').map(item => item.trim()).filter(item => item !== '')
+        keys: keys
       });
       
       // 获取所有不重复的日期
@@ -77,6 +83,37 @@ export const ConfigStatisticsPage: React.FC = () => {
     return [...baseColumns, ...dynamicColumns];
   };
 
+  const handleExportExcel = () => {
+    if (!dataSource.length) {
+      message.warning('暂无数据可导出');
+      return;
+    }
+
+    // 准备导出数据
+    const exportData = dataSource.map(item => {
+      const row: Record<string, any> = {
+        '卡密': item.key,
+        '总数': item.uv.reduce((sum, uvItem) => sum + uvItem.count, 0),
+      };
+      
+      // 添加每个日期的数据
+      dateColumns.forEach(date => {
+        const uvData = item.uv.find(uvItem => uvItem.date === date);
+        row[date] = uvData?.count || 0;
+      });
+      
+      return row;
+    });
+
+    // 创建工作表
+    const ws = xlsxUtils.json_to_sheet(exportData);
+    const wb = xlsxUtils.book_new();
+    xlsxUtils.book_append_sheet(wb, ws, '统计数据');
+
+    // 导出文件
+    writeFile(wb, '统计数据.xlsx');
+  };
+
   return (
     <div className={styles.container}>
       <Button 
@@ -95,7 +132,7 @@ export const ConfigStatisticsPage: React.FC = () => {
       >
         <Form.Item name="key">
           <Input.TextArea 
-            placeholder="一行一个卡密，最多支持20个" 
+            placeholder="一行一个卡密,最多支持10个" 
             className={styles.textarea}
             rows={10}
           />
@@ -112,6 +149,8 @@ export const ConfigStatisticsPage: React.FC = () => {
           <Button 
             type="primary" 
             className={`${styles.button} ${styles.secondary}`}
+            onClick={handleExportExcel}
+            disabled={!dataSource.length}
           >
             导出Excel
           </Button>

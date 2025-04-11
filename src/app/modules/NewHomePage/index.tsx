@@ -1,18 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { Layout, Menu, Table, Form, Input, Button, Space, message, Modal, Tooltip } from 'antd';
+import { Layout, Table, Form, Input, Button, Space, message, Modal, Tooltip, DatePicker } from 'antd';
 import { 
-  MenuFoldOutlined, 
-  MenuUnfoldOutlined,
   ReloadOutlined,
-  BarsOutlined,
-  SettingOutlined,
   PlusOutlined,
 } from '@ant-design/icons';
+
+const { Content } = Layout;
 import styles from './index.module.scss';
 import { APIClient } from '../../../apis/base';
 import { AnkouConfigItem, UVData } from '../../models/ankouConfig';
+import { CommonLayout } from '../../components/CommonLayout';
+import { useContext } from 'react';
+import { UserStoreContext } from '../../globalStore/userStore';
+import { USER_ROLES } from '../../constants';
+import dayjs from 'dayjs';
 
-const { Header, Sider, Content } = Layout;
 
 interface QueryParams {
   original_key?: string;
@@ -22,19 +24,25 @@ interface QueryParams {
   size: number;
 }
 
+// Update NewConfigForm interface
 interface NewConfigForm {
   original_key: string;
   original_url: string;
   ratio: number;
+  start_at: dayjs.Dayjs;  // Change to dayjs.Dayjs
+  end_at: dayjs.Dayjs;    // Change to dayjs.Dayjs
 }
 
+// 修改 UpdateConfigForm 接口
 interface UpdateConfigForm {
-    config_id: number
-    ratio: number
+    config_id: number;
+    ratio: number;
+    start_at: dayjs.Dayjs;
+    end_at: dayjs.Dayjs;
 }
 
 export const SystemListPage: React.FC = () => {
-  const [collapsed, setCollapsed] = useState(false);
+  const userContext = useContext(UserStoreContext);
   const [loading, setLoading] = useState(false);
   const [dataSource, setDataSource] = useState<AnkouConfigItem[]>([]);
   const [form] = Form.useForm();
@@ -64,20 +72,29 @@ export const SystemListPage: React.FC = () => {
   }, []); // 空依赖数组表示只在组件挂载时执行一次
 
   const handleEdit = (record: AnkouConfigItem) => {
-    setEditingRecord(record); // 设置当前编辑的记录
-    console.log(record.ratio)
-    updateConfigForm.setFieldsValue({ ratio: record.ratio, config_id: record.id }); // 设置表单初始值
-    setIsEditModalVisible(true); // 显示编辑弹窗
+    setEditingRecord(record);
+    updateConfigForm.setFieldsValue({ 
+      ratio: record.ratio, 
+      config_id: record.id,
+      start_at: dayjs(record.start_at * 1000),
+      end_at: dayjs(record.end_at * 1000)
+    });
+    setIsEditModalVisible(true);
   };
 
   const handleUpdate = async (values: UpdateConfigForm) => {
     try {
       if (!editingRecord) {
         setIsEditModalVisible(false);
-        return
+        return;
       }
       setLoading(true);
-      await APIClient.updateConfig({config_id: editingRecord.id, ratio: values.ratio}); // 调用更新 API
+      await APIClient.updateConfig({
+        config_id: editingRecord.id,
+        ratio: values.ratio,
+        start_at: Math.floor(values.start_at.valueOf() / 1000),
+        end_at: Math.floor(values.end_at.valueOf() / 1000)
+      });
       message.success('更新成功');
       setIsEditModalVisible(false);
       updateConfigForm.resetFields();
@@ -198,7 +215,11 @@ export const SystemListPage: React.FC = () => {
   const handleCreate = async (values: NewConfigForm) => {
     try {
       setLoading(true);
-      await APIClient.createConfig(values);
+      await APIClient.createConfig({
+        ...values,
+        start_at: Math.floor(values.start_at.valueOf() / 1000),
+        end_at: Math.floor(values.end_at.valueOf() / 1000)
+      });
       message.success('创建成功');
       setIsModalVisible(false);
       newConfigForm.resetFields();
@@ -309,6 +330,22 @@ export const SystemListPage: React.FC = () => {
       ellipsis: true
     },
     {
+      title: '开始时间',
+      dataIndex: 'start_at',
+      key: 'start_at',
+      width: 150,
+      ellipsis: true,
+      render: (timestamp: number) => new Date(timestamp * 1000).toLocaleString().replace(/\//g, '-')
+    },
+    {
+        title: '结束时间',
+        dataIndex: 'end_at',
+        key: 'end_at',
+        width: 150,
+        ellipsis: true,
+        render: (timestamp: number) => new Date(timestamp * 1000).toLocaleString().replace(/\//g, '-')
+    },
+    {
       title: '创建时间',
       dataIndex: 'created_at',
       key: 'created_at',
@@ -332,185 +369,216 @@ export const SystemListPage: React.FC = () => {
       render: (_: unknown, record: AnkouConfigItem) => (
         <Space size="middle">
           <Button type="link" className={styles.smallButton} onClick={() => handleEdit(record)}>编辑</Button>
-          <Button type="link" className={styles.smallButton} danger onClick={() => handleDelete(record)}>删除</Button>
+          {userContext.getUser()?.role === USER_ROLES.ADMIN && (
+            <Button type="link" className={styles.smallButton} danger onClick={() => handleDelete(record)}>删除</Button>
+          )}
         </Space>
       ),
     },
   ];
 
   return (
-    <Layout className={styles.layout}>
-      <Sider 
-        width={200} 
-        theme="light" 
-        collapsible 
-        collapsed={collapsed}
-        trigger={null}
-        collapsedWidth={0}
-        className={styles.sider}
-      >
-        <div className={styles.logo} />
-        <Menu theme="light" mode="inline" defaultSelectedKeys={['1']}>
-          <Menu.Item key="1">首页</Menu.Item>
-        </Menu>
-      </Sider>
-      <Layout style={{ overflow: 'hidden' }}>
-        <Header className={styles.header}>
-          {React.createElement(collapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {
-            className: styles.trigger,
-            onClick: () => setCollapsed(!collapsed),
-          })}
-          <Form 
-            form={form}
-            layout="inline" 
-            style={{ flex: 1 }}
-            onFinish={handleQuery}
+    <CommonLayout>
+      <Content className={styles.content}>
+        <Form 
+          form={form}
+          layout="inline" 
+          className={styles.searchForm}
+          onFinish={handleQuery}
+        >
+          <Form.Item name="originalKey" label="原卡密">
+            <Input placeholder="请输入" />
+          </Form.Item>
+          <Form.Item name="secondaryKey" label="副卡密">
+            <Input placeholder="请输入" />
+          </Form.Item>
+          <Form.Item name="originalLink" label="原链接">
+            <Input placeholder="请输入" />
+          </Form.Item>
+          <Form.Item>
+            <Button 
+              type="primary" 
+              htmlType="submit" 
+              loading={loading}
+              style={{ width: 80 }}  // 添加固定宽度
+            >
+              查询
+            </Button>
+            <Button 
+              style={{ marginLeft: 8, width: 80 }}  // 添加固定宽度
+              onClick={handleReset}
+            >
+              重置
+            </Button>
+          </Form.Item>
+        </Form>
+        <div className={styles.headerContent}>
+          <div className={styles.title}>查询列表</div>
+          <Space>
+            <Button 
+              type="primary" 
+              icon={<PlusOutlined />}
+              onClick={() => setIsModalVisible(true)}
+            >
+              新建
+            </Button>
+            <Button icon={<ReloadOutlined />} onClick={() => fetchData({
+              page: pagination.current,
+              size: pagination.pageSize,
+              original_key: form.getFieldValue('originalKey') || '',
+              key: form.getFieldValue('secondaryKey') || '',
+              original_url: form.getFieldValue('originalLink') || ''
+            })} />
+          </Space>
+        </div>
+        <div className={styles.tableContainer}>
+          <Table 
+            columns={columns} 
+            dataSource={dataSource}
+            loading={loading}
+            bordered
+            pagination={{
+              ...pagination,
+              showSizeChanger: true,
+              onChange: (page, pageSize) => {
+                setPagination({ current: page, pageSize, total: pagination.total });
+                fetchData({ 
+                  page, 
+                  size: pageSize, 
+                  original_key: form.getFieldValue('originalKey') || '', 
+                  key: form.getFieldValue('secondaryKey') || '', 
+                  original_url: form.getFieldValue('originalLink') || '' 
+                });
+              }
+            }}
+            scroll={{ y: 'calc(100vh - 300px)' }}
+            className={styles.smallText}
+          />
+        </div>
+        <Modal
+          title="新建配置"
+          open={isModalVisible}
+          onOk={() => newConfigForm.submit()}
+          onCancel={() => {
+            setIsModalVisible(false);
+            newConfigForm.resetFields();
+          }}
+          confirmLoading={loading}
+        >
+          <Form
+            form={newConfigForm}
+            layout="vertical"
+            onFinish={handleCreate}
           >
-            <Form.Item name="originalKey" label="原卡密">
-              <Input placeholder="请输入" />
+            <Form.Item
+              name="original_key"
+              label="原卡密"
+              rules={[{ required: true, message: '请输入原卡密' }]}
+            >
+              <Input placeholder="请输入原卡密" />
             </Form.Item>
-            <Form.Item name="secondaryKey" label="副卡密">
-              <Input placeholder="请输入" />
+            <Form.Item
+              name="original_url"
+              label="原链接"
+              rules={[{ required: true, message: '请输入原链接' }]}
+            >
+              <Input placeholder="请输入原链接" />
             </Form.Item>
-            <Form.Item name="originalLink" label="原链接">
-              <Input placeholder="请输入" />
+            <Form.Item
+              name="ratio"
+              label="比例"
+              rules={[{ required: true, message: '请输入比例' }]}
+            >
+              <Input type="number" placeholder="请输入比例" />
             </Form.Item>
-            <Form.Item>
-              <Button type="primary" htmlType="submit" loading={loading}>查询</Button>
-              <Button style={{ marginLeft: 8 }} onClick={handleReset}>重置</Button>
-              <Button type="link" style={{ float: 'right' }}>展开 ▼</Button>
+            <Form.Item
+              name="start_at"
+              label="开始时间"
+              rules={[{ required: true, message: '请选择开始时间' }]}
+            >
+              <DatePicker 
+                showTime 
+                style={{ width: '100%' }}
+              />
+            </Form.Item>
+            <Form.Item
+              name="end_at"
+              label="结束时间"
+              rules={[{ required: true, message: '请选择结束时间' }]}
+            >
+              <DatePicker 
+                showTime 
+                style={{ width: '100%' }}
+              />
             </Form.Item>
           </Form>
-        </Header>
-        <Content className={styles.content}>
-          <div className={styles.headerContent}>
-            <div className={styles.title}>查询列表</div>
-            <Space>
-              <Button 
-                type="primary" 
-                icon={<PlusOutlined />}
-                onClick={() => setIsModalVisible(true)}
-              >
-                新建
-              </Button>
-              <Button danger>删除</Button>
-              <Button icon={<ReloadOutlined />} onClick={() => fetchData({
-                page: pagination.current,
-                size: pagination.pageSize,
-                original_key: form.getFieldValue('originalKey') || '',
-                key: form.getFieldValue('secondaryKey') || '',
-                original_url: form.getFieldValue('originalLink') || ''
-              })} />
-              <Button icon={<BarsOutlined />} />
-              <Button icon={<SettingOutlined />} />
-            </Space>
-          </div>
-          <div className={styles.tableContainer}>
-          <Table 
-          columns={columns} 
-          dataSource={dataSource}
-          loading={loading}
-          bordered
-          pagination={{
-            ...pagination, // 确保 pagination 包含 total
-            showSizeChanger: true, // 允许用户更改每页显示条数
-            onChange: (page, pageSize) => {
-              setPagination({ current: page, pageSize, total: pagination.total });
-              fetchData({ 
-                page, 
-                size: pageSize, 
-                original_key: form.getFieldValue('originalKey') || '', 
-                key: form.getFieldValue('secondaryKey') || '', 
-                original_url: form.getFieldValue('originalLink') || '' 
-              });
-            }
+        </Modal>
+
+        {/* 编辑配置弹窗 */}
+        <Modal
+          title="编辑配置"
+          open={isEditModalVisible}
+          onOk={() => updateConfigForm.submit()}
+          onCancel={() => {
+            setIsEditModalVisible(false);
+            updateConfigForm.resetFields();
           }}
-          scroll={{ y: 'calc(100vh - 300px)' }}
-        //   size="small"
-          className={styles.smallText}
-        />
-          </div>
-        </Content>
-      </Layout>
-
-      <Modal
-        title="新建配置"
-        open={isModalVisible}
-        onOk={() => newConfigForm.submit()}
-        onCancel={() => {
-          setIsModalVisible(false);
-          newConfigForm.resetFields();
-        }}
-        confirmLoading={loading}
-      >
-        <Form
-          form={newConfigForm}
-          layout="vertical"
-          onFinish={handleCreate}
+          confirmLoading={loading}
         >
-          <Form.Item
-            name="original_key"
-            label="原卡密"
-            rules={[{ required: true, message: '请输入原卡密' }]}
+          <Form
+            form={updateConfigForm}
+            layout="vertical"
+            onFinish={handleUpdate}
           >
-            <Input placeholder="请输入原卡密" />
-          </Form.Item>
+            <Form.Item
+              name="ratio"
+              label="比例"
+              rules={[{ required: true, message: '请输入比例' }]}
+            >
+              <Input type="number" placeholder="请输入比例" />
+            </Form.Item>
+            <Form.Item
+              name="start_at"
+              label="开始时间"
+              rules={[{ required: true, message: '请选择开始时间' }]}
+            >
+              <DatePicker 
+                showTime 
+                style={{ width: '100%' }}
+              />
+            </Form.Item>
+            <Form.Item
+              name="end_at"
+              label="结束时间"
+              rules={[{ required: true, message: '请选择结束时间' }]}
+            >
+              <DatePicker 
+                showTime 
+                style={{ width: '100%' }}
+              />
+            </Form.Item>
+          </Form>
+        </Modal>
 
-          <Form.Item
-            name="original_url"
-            label="原链接"
-            rules={[{ required: true, message: '请输入原链接' }]}
-          >
-            <Input placeholder="请输入原链接" />
-          </Form.Item>
-          <Form.Item
-            name="ratio"
-            label="比例"
-            rules={[{ required: true, message: '请输入比例' }]}
-          >
-            <Input type="number" placeholder="请输入比例" />
-          </Form.Item>
-        </Form>
-      </Modal>
-
-      <Modal
-        title="编辑配置"
-        open={isEditModalVisible} // 使用编辑状态
-        onOk={() => updateConfigForm.submit()}
-        onCancel={() => {
-          setIsEditModalVisible(false);
-          updateConfigForm.resetFields();
-          setEditingRecord(null); // 重置编辑记录
-        }}
-        confirmLoading={loading}
-      >
-        <Form
-          form={updateConfigForm}
-          layout="vertical"
-          onFinish={handleUpdate} // 使用 handleUpdate 处理编辑
+        {/* 删除确认弹窗 */}
+        <Modal
+          title="确认删除"
+          open={isDeleteModalVisible}
+          onOk={handleDeleteConfirm}
+          onCancel={() => {
+            setIsDeleteModalVisible(false);
+            setDeletingRecord(null);
+          }}
+          confirmLoading={loading}
         >
-          <Form.Item
-            name="ratio"
-            label="比例"
-            rules={[{ required: true, message: '请输入比例' }]}
-          >
-            <Input type="number" placeholder="请输入比例" />
-          </Form.Item>
-        </Form>
-      </Modal>
+          <p>确定要删除这条配置吗？</p>
+          <p>原卡密：{deletingRecord?.original_key}</p>
+          <p>副卡密：{deletingRecord?.key}</p>
+        </Modal>
 
-      <Modal
-        title="删除确认"
-        open={isDeleteModalVisible}
-        onOk={handleDeleteConfirm}
-        onCancel={() => {
-          setIsDeleteModalVisible(false);
-          setDeletingRecord(null);
-        }}
-        confirmLoading={loading}
-      >
-        <p>确定要删除这条配置吗？此操作不可恢复。</p>
-      </Modal>
-    </Layout>
+
+
+      </Content>
+    </CommonLayout>
   );
 };

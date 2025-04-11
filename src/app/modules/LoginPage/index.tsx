@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import styles from './index.module.scss';
 import { APIClient } from '../../../apis/base';
 import CryptoJS from 'crypto-js';
+import { SYSTEM_CONFIG } from "../../constants";
 
 interface LoginForm {
   username: string;
@@ -28,7 +29,6 @@ export const LoginPage: React.FC = () => {
         message.error(response.msg || '登陆失败');
       }
     } catch (error) {
-      message.error('登录失败，请检查用户名和密码');
       console.error('登录失败:', error);
     } finally {
       setLoading(false);
@@ -38,9 +38,6 @@ export const LoginPage: React.FC = () => {
   return (
     <div className={styles.loginContainer}>
       <div className={styles.loginCard}>
-        <div className={styles.logo}>
-          <img src="/logo.png" alt="Logo" />
-        </div>
         <div className={styles.title}>系统登录</div>
         
         <Form
@@ -84,7 +81,7 @@ export const LoginPage: React.FC = () => {
         </Form>
 
         <div className={styles.footer}>
-          © 2024 系统名称
+          © 2025 {SYSTEM_CONFIG.NAME}
         </div>
       </div>
     </div>
